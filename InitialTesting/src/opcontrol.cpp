@@ -26,15 +26,15 @@ void opcontrol() {
 		
 		// left_mtr = left;
 		// right_mtr = right;
-		if((pros::lcd::read_buttons() & LCD_BTN_RIGHT) > 0){
-			right_mtr = 100; 
-			left_mtr = 100;
-		}
-		else{
-			right_mtr = 0;
-			left_mtr = 0;
-		}
-		pros::lcd::print(0, "%d", (pros::lcd::read_buttons() & LCD_BTN_RIGHT));
+		// if((pros::lcd::read_buttons() & LCD_BTN_RIGHT) > 0){
+		// 	right_mtr = 125; 
+		// 	left_mtr = 125;
+		// }
+		// else{
+		// 	right_mtr = 0;
+		// 	left_mtr = 0;
+		// }
+		pros::lcd::print(0, "check%d %d %d %d", master.get_analog(ANALOG_RIGHT_X), master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
 		pros::delay(20);
 	}
 }
