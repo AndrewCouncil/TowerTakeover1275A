@@ -15,17 +15,39 @@
  */
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
-	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
+	pros::Motor left_omni (1, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+	pros::Motor right_omni(2, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
+	pros::Motor left_mech (3, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+	pros::Motor right_mech(4, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
+	int X2 = 0, Y1 = 0, X1 = 0, threshold = 15, test = 0;
 
-		left_mtr = left;
-		right_mtr = right;
+	while (true) {
+		// 
+		pros::lcd::print(0, "check%d %d %d %d %d", master.get_analog(ANALOG_RIGHT_X), master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y), test);
+
+		if(abs(master.get_analog(ANALOG_LEFT_Y)) > threshold)
+    		Y1 = master.get_analog(ANALOG_LEFT_Y);
+  		else
+		    Y1 = 0;
+		//Create "deadzone" for X1/Ch4
+		if(abs(master.get_analog(ANALOG_LEFT_X)) > threshold)
+			X1 = master.get_analog(ANALOG_LEFT_X);
+		else
+			X1 = 0;
+		//Create "deadzone" for X2/Ch1
+		if(abs(master.get_analog(ANALOG_RIGHT_X)) > threshold)
+			X2 = master.get_analog(ANALOG_RIGHT_X);
+		else
+			X2 = 0;
+
+		//Remote Control Commands
+		
+		right_mech = Y1 - X2 - X1;   // Front Right
+		right_omni =  Y1 - X2;// + X1;  // Back Right
+		left_mech = test = Y1 + X2 + X1; // Front Left
+		left_omni =  Y1 + X2;// - X1; //Back Left
+
+		// May need to make left omnis move positive x and right omnis move negative x
 		pros::delay(20);
 	}
 }
