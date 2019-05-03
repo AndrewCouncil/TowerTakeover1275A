@@ -15,10 +15,10 @@
  */
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_omni (1, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-	pros::Motor right_omni(2, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
-	pros::Motor left_mech (3, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-	pros::Motor right_mech(4, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
+	pros::Motor left_omni (13, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+	pros::Motor right_omni(15, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
+	pros::Motor left_mech (4, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+	pros::Motor right_mech(3, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
 	int X2 = 0, Y1 = 0, X1 = 0, threshold = 15, test = 0;
 
 	while (true) {
@@ -43,11 +43,10 @@ void opcontrol() {
 		//Remote Control Commands
 		
 		right_mech = Y1 - X2 - X1;   // Front Right
-		right_omni =  Y1 - X2;// + X1;  // Back Right
+		right_omni =  Y1 - X2 + 0.75*X1;// + X1;  // Back Right
 		left_mech = test = Y1 + X2 + X1; // Front Left
-		left_omni =  Y1 + X2;// - X1; //Back Left
+		left_omni =  Y1 + X2 - 0.75*X1;// - X1; //Back Left
 
-		// May need to make left omnis move positive x and right omnis move negative x
 		pros::delay(20);
 	}
 }
