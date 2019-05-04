@@ -35,11 +35,12 @@
 #define PROS_USE_LITERALS
 
 #include "api.h"
-
+#include "display.h"
 /**
  * You should add more #includes here
  */
-//#include "okapi/api.hpp"
+#include "okapi/api.hpp"
+#include "pros/apix.h"
 //#include "pros/api_legacy.h"
 
 /**

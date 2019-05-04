@@ -7,12 +7,19 @@
 	"settings": {
 		"actionButtons": {
 			"commands": [
-			  {
+				{
+					"name": "Compile",
+					"singleInstance": true,
+					"color": "#cb00ff",
+					"command": "prosv5 make",
+				},
+				{
 					"name": "Compile & Upload",
 					"singleInstance": true,
 					"color": "#00ff6a",
 					"command": "prosv5 mut",
 				},
+				
 			]
 		}
 	}
