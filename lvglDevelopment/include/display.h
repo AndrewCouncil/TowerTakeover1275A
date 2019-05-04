@@ -26,7 +26,7 @@ void lv_tutorial_objects(void)
      * 210: a green HUE value
      * NULL: use the default font (LV_FONT_DEFAULT)*/
     lv_theme_t * th = lv_theme_alien_init(65, NULL);
-
+ 
     /*Set the surent system theme*/
     lv_theme_set_current(th);
 
@@ -48,13 +48,14 @@ void lv_tutorial_objects(void)
     lv_obj_t * btn1 = lv_btn_create(lv_scr_act(), NULL);         /*Create a button on the currently loaded screen*/
     // lv_btn_set_action(btn1, LV_BTN_ACTION_CLICK, btn_rel_action); /*Set function to be called when the button is released*/
     lv_obj_align(btn1, label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 20);  /*Align below the label*/
-
+    lv_btn_set_toggle(btn1, true);
     /*Create a label on the button (the 'label' variable can be reused)*/
     label = lv_label_create(btn1, NULL);
     lv_label_set_text(label, "Button 1");
 
     /*Copy the previous button*/
     lv_obj_t * btn2 = lv_btn_create(lv_scr_act(), btn1);        /*Second parameter is an object to copy*/
+    lv_btn_set_toggle(btn2, false);
     lv_obj_align(btn2, btn1, LV_ALIGN_OUT_RIGHT_MID, 50, 0);    /*Align next to the prev. button.*/
 
     /*Create a label on the button*/
@@ -103,4 +104,10 @@ void lv_tutorial_objects(void)
     lv_chart_set_next(chart, dl2, 75);
     lv_chart_set_next(chart, dl2, 505);
 
+    lv_obj_t * status = lv_label_create(scr, NULL); /*First parameters (scr) is the parent*/
+    lv_obj_set_x(label, 150);
+    while(true){
+        std::cout<<lv_slider_get_value(slider)<<std::endl;
+        pros::delay(100);
+    }
 }
