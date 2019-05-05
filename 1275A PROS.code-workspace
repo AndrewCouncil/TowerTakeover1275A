@@ -11,7 +11,13 @@
 					"name": "Compile",
 					"singleInstance": true,
 					"color": "#cb00ff",
-					"command": "prosv5 make",
+					"command": "prosv5 make clean; prosv5 make",
+				},
+				{
+					"name": "Quick Compile",
+					"singleInstance": true,
+					"color": "#f6ff00",
+					"command": "prosv5 make clean; prosv5 make",
 				},
 				{
 					"name": "Compile & Upload",
@@ -19,6 +25,7 @@
 					"color": "#00ff6a",
 					"command": "prosv5 mut",
 				},
+				
 				
 			]
 		}

@@ -1,6 +1,11 @@
 
-#include "okapi/api.hpp"
-#include "pros/apix.h"
+#include "display/lv_themes/lv_theme_templ_code.h"
+#include "display/lv_themes/lv_theme_default_code.h"
+// #include "display/lv_themes/lv_theme_alien_code.h"
+#include "display/lv_themes/lv_theme_night_code.h"
+#include "display/lv_themes/lv_theme_mono_code.h"
+
+
 
 // static  lv_res_t btn_rel_action(lv_obj_t * btn);
 // static  lv_res_t ddlist_action(lv_obj_t * ddlist);
@@ -25,8 +30,8 @@ void lv_tutorial_objects(void)
     /*Initialize the alien theme
      * 210: a green HUE value
      * NULL: use the default font (LV_FONT_DEFAULT)*/
-    lv_theme_t * th = lv_theme_alien_init(65, NULL);
- 
+    lv_theme_t * th = lv_theme_night_init(65, NULL);
+    
     /*Set the surent system theme*/
     lv_theme_set_current(th);
 
@@ -106,8 +111,16 @@ void lv_tutorial_objects(void)
 
     lv_obj_t * status = lv_label_create(scr, NULL); /*First parameters (scr) is the parent*/
     lv_obj_set_x(label, 150);
-    while(true){
-        std::cout<<lv_slider_get_value(slider)<<std::endl;
-        pros::delay(100);
-    }
+
+    // lv_obj_t * logo = lv_img_create(lv_scr_act(), NULL);
+    // FILE* usd_file_read = fopen("/usd/CompLogo.bin", "r");
+    // lv_img_set_src(logo, usd_file_read);
+
+    // lv_obj_set_x(logo, 150);
+    // lv_obj_set_y(logo, 500);
+
+    // while(true){
+    //     std::cout<<lv_slider_get_value(slider)<<std::endl;
+    //     pros::delay(100);
+    // }
 }

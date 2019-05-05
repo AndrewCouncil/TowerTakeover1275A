@@ -49,6 +49,7 @@
                     "include/display/lv_themes/lv_theme_templ.h",
                     "include/pros/motors.h",
                     "include/display/lv_themes/lv_theme_alien.h",
+                    "include/display/lv_themes/lv_theme_night.h",
                     "include/display/lv_misc/lv_anim.h",
                     "include/display/lv_misc/lv_ufs.h",
                     "include/display/lv_core/lv_refr.h",
