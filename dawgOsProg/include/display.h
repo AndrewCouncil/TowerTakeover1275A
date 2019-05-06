@@ -57,7 +57,7 @@ void lv_tutorial_objects(void)
     /*Create a label on the button (the 'label' variable can be reused)*/
     label = lv_label_create(btn1, NULL);
     lv_label_set_text(label, "Button 1");
-
+    
     /*Copy the previous button*/
     lv_obj_t * btn2 = lv_btn_create(lv_scr_act(), btn1);        /*Second parameter is an object to copy*/
     lv_btn_set_toggle(btn2, false);
