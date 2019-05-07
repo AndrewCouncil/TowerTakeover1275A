@@ -1,4 +1,5 @@
 
+#include <cstdlib>
 #include "display/lv_themes/lv_theme_templ_code.h"
 #include "display/lv_themes/lv_theme_default_code.h"
 // #include "display/lv_themes/lv_theme_alien_code.h"
@@ -15,10 +16,11 @@
 // static void ddlist_action (void){
 //     return;
 // }
-
+LV_IMG_DECLARE(DogLogo);
 void lv_tutorial_objects(void)
 {
-
+    // extern const lv_img_t DogLogo;
+    
     //pros::Motor test(15);
     /********************
      * CREATE A SCREEN
@@ -38,6 +40,9 @@ void lv_tutorial_objects(void)
 
     lv_obj_t * scr = lv_page_create(NULL, NULL);
     lv_scr_load(scr);
+    
+    lv_obj_t * logo = lv_img_create(lv_scr_act(), NULL);
+    lv_img_set_src(logo, &DogLogo);
 
     /****************
      * ADD A TITLE
@@ -112,15 +117,46 @@ void lv_tutorial_objects(void)
     lv_obj_t * status = lv_label_create(scr, NULL); /*First parameters (scr) is the parent*/
     lv_obj_set_x(label, 150);
 
-    // lv_obj_t * logo = lv_img_create(lv_scr_act(), NULL);
-    // FILE* usd_file_read = fopen("/usd/CompLogo.bin", "r");
-    // lv_img_set_src(logo, usd_file_read);
-
-    // lv_obj_set_x(logo, 150);
-    // lv_obj_set_y(logo, 500);
-
-    // while(true){
-    //     std::cout<<lv_slider_get_value(slider)<<std::endl;
-    //     pros::delay(100);
-    // }
+    
+    lv_obj_set_x(logo, 150);
+    lv_obj_set_y(logo, 50);
+    int x = 1;
+    int y = 50;
+    int xDirection = 1;
+    int yDirection = 1;
+    int xRate = 1;
+    int yRate = 1;
+    while(true){
+        // for(x; x<=300; x++){
+        //     lv_obj_set_x(logo, x);
+        //     pros::delay(15);
+        // }
+        // for(x; x>=0; x--){
+        //     lv_obj_set_x(logo, x);
+        //     pros::delay(15);
+        // }
+        if(x>=300 || x<=0){
+            xDirection = 1-xDirection;
+            // xRate = (rand() % 2) + 1;
+        }
+        if(y>=105 || y<=10){
+            yDirection = 1-yDirection;
+            // yRate = (rand() % 2) + 1;
+        }
+        if(xDirection == 1){
+            x++;
+        }
+        else{
+            x--;
+        }
+        if(yDirection == 1){
+            y++;
+        }
+        else{
+            y--;
+        }
+        lv_obj_set_x(logo, x);
+        lv_obj_set_y(logo, y);
+        pros::delay(15);
+    }
 }
