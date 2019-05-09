@@ -16,33 +16,67 @@
 //     return;
 // }
 LV_IMG_DECLARE(DogLogo);
+int activeScr = 0;
+
+// DEFINE ALL OBJECTS TO USE OUTSIDE OF MAIN CODE
+
+lv_theme_t * th = lv_theme_night_init(65, NULL);
+
+// SCREENS
+lv_obj_t * scr2 = lv_page_create(NULL, NULL);
+lv_obj_t * scr1 = lv_page_create(NULL, NULL);
+lv_obj_t * scr0 = lv_page_create(NULL, NULL);
+
+// SCREEN 0 OBJECTS
+lv_obj_t * robotBatt = lv_bar_create(scr0, NULL);
+lv_obj_t * logo = lv_img_create(scr0, NULL);
+lv_obj_t * controlBatt = lv_bar_create(scr0, NULL);
+lv_obj_t * robotBattLabel = lv_label_create(robotBatt, NULL);
+lv_obj_t * controlBattLabel = lv_label_create(controlBatt, NULL);
+lv_obj_t * autonTypeBtnm = lv_btnm_create(scr0, NULL);
+
+// SCREEN 1 OBJECTS
+
+
+static lv_res_t setScr0Action(lv_obj_t * btn)
+{
+    uint8_t id = lv_obj_get_free_num(btn);
+    lv_scr_load(scr0);
+    return LV_RES_OK; /*Return OK if the button is not deleted*/
+}
+static lv_res_t setScr1Action(lv_obj_t * btn)
+{
+    uint8_t id = lv_obj_get_free_num(btn);
+    lv_scr_load(scr1);
+    return LV_RES_OK; /*Return OK if the button is not deleted*/
+}
+static lv_res_t setScr2Action(lv_obj_t * btn)
+{
+    uint8_t id = lv_obj_get_free_num(btn);
+    lv_scr_load(scr2);
+    return LV_RES_OK; /*Return OK if the button is not deleted*/
+}
 
 void lv_tutorial_objects(void)
 {
-    // TEMPORARY USE ONLY
-    pros::Controller master(pros::E_CONTROLLER_MASTER);
-    
-    lv_theme_t * th = lv_theme_night_init(65, NULL);
+    // SCREEN 0 OBJECTS
     
     /*Set the surent system theme*/
     lv_theme_set_current(th);
     
     // Loads main screen
-    lv_obj_t * scr1 = lv_page_create(NULL, NULL);
-    lv_scr_load(scr1);
+    lv_scr_load(scr0);
 
     // Create Logo and put in top left corner of main screen
-    lv_obj_t * logo = lv_img_create(scr1, NULL);
     lv_img_set_src(logo, &DogLogo);
     lv_page_glue_obj(logo, true);
-    lv_obj_align(logo, scr1, LV_ALIGN_IN_TOP_LEFT,5,5);
+    lv_obj_align(logo, scr0, LV_ALIGN_IN_TOP_LEFT,5,5);
     lv_obj_set_protect(logo, LV_PROTECT_POS);
     
     //Create bars for robot and controller battery and set it
     int robotCapacity   = 14500;
     int controlCapacity = 4200;
-
-    lv_obj_t * robotBatt = lv_bar_create(scr1, NULL);
+    
     lv_bar_set_range(robotBatt, 0, robotCapacity);
     lv_bar_set_value(robotBatt, pros::battery::get_voltage());
     lv_obj_set_size(robotBatt, 140,30);
@@ -50,8 +84,6 @@ void lv_tutorial_objects(void)
     lv_page_glue_obj(robotBatt, true);
     lv_obj_set_protect(robotBatt, LV_PROTECT_POS);
     
-
-    lv_obj_t * controlBatt = lv_bar_create(scr1, NULL);
     lv_bar_set_range(controlBatt, 0, controlCapacity);
     // printf("%d", master.get_battery_level());
     lv_bar_set_value(controlBatt, master.get_battery_level());
@@ -59,18 +91,18 @@ void lv_tutorial_objects(void)
     lv_obj_align(controlBatt, robotBatt, LV_ALIGN_OUT_RIGHT_TOP, 20, 0);
     lv_obj_set_protect(controlBatt, LV_PROTECT_POS);
     
-
-    lv_obj_t * robotBattLabel = lv_label_create(robotBatt, NULL);
+    // Label Battery Bars
     lv_label_set_text(robotBattLabel, "Robot");
     lv_label_set_align(robotBattLabel,LV_LABEL_ALIGN_CENTER);
     lv_obj_align(robotBattLabel, robotBatt, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t * controlBattLabel = lv_label_create(controlBatt, NULL);
+    
     lv_label_set_text(controlBattLabel, "Controller");
     lv_label_set_align(controlBattLabel,LV_LABEL_ALIGN_CENTER);
     lv_obj_align(controlBattLabel, controlBatt, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t * testBtn = lv_btn_create(scr1, NULL);
+    // Create a dummy button, copy its style, delete it
+    lv_obj_t * testBtn = lv_btn_create(scr0, NULL);
     lv_obj_set_hidden(testBtn, true);
     static lv_style_t red_btn_tgl_rel;
     static lv_style_t red_btn_tgl_pr;
@@ -80,6 +112,7 @@ void lv_tutorial_objects(void)
     lv_style_copy(&red_btn_rel, lv_btn_get_style(testBtn, LV_BTN_STYLE_REL));
     lv_obj_del(testBtn);
 
+    // Make styles for red and blue buttons
     red_btn_tgl_rel.body.main_color = LV_COLOR_RED;
     red_btn_tgl_rel.body.grad_color = LV_COLOR_MAKE(0xa0, 0x00, 0x00);
     red_btn_tgl_pr.body.main_color = LV_COLOR_MAKE(0xa0, 0x00, 0x00);
@@ -101,8 +134,8 @@ void lv_tutorial_objects(void)
     blue_btn_rel.body.border.color = LV_COLOR_BLUE;
     blue_btn_rel.body.border.width = 2;
 
-
-    lv_obj_t * autonRedBtn = lv_btn_create(scr1,NULL);
+    // Make Red and Blue buttons
+    lv_obj_t * autonRedBtn = lv_btn_create(scr0,NULL);
     lv_btn_set_toggle(autonRedBtn,true);
     lv_obj_set_size(autonRedBtn,100,75);
     lv_btn_set_style(autonRedBtn, LV_BTN_STYLE_TGL_PR, &red_btn_tgl_pr);
@@ -110,12 +143,13 @@ void lv_tutorial_objects(void)
     lv_btn_set_style(autonRedBtn, LV_BTN_STYLE_REL, &red_btn_rel);
     lv_obj_align(autonRedBtn, robotBatt, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 
-    lv_obj_t * autonBlueBtn = lv_btn_create(scr1,autonRedBtn);
+    lv_obj_t * autonBlueBtn = lv_btn_create(scr0,autonRedBtn);
     lv_btn_set_style(autonBlueBtn, LV_BTN_STYLE_TGL_PR, &blue_btn_tgl_pr);
     lv_btn_set_style(autonBlueBtn, LV_BTN_STYLE_TGL_REL, &blue_btn_tgl_rel);
     lv_btn_set_style(autonBlueBtn, LV_BTN_STYLE_REL, &blue_btn_rel);
     lv_obj_align(autonBlueBtn, controlBatt, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 
+    // Label Red and Blue buttons
     lv_obj_t * redLabel = lv_label_create(autonRedBtn, NULL);
     lv_label_set_text(redLabel, "RED");
     lv_label_set_align(redLabel,LV_LABEL_ALIGN_CENTER);
@@ -126,6 +160,10 @@ void lv_tutorial_objects(void)
     lv_label_set_align(blueLabel,LV_LABEL_ALIGN_CENTER);
     lv_obj_align(blueLabel, autonBlueBtn, LV_ALIGN_CENTER, 0, 0);
 
+    // Set red to toggled
+    lv_btn_set_state(autonRedBtn, LV_BTN_STATE_TGL_REL);
+
+    // Create dummy line, find lineup coords, delete line
     static lv_point_t line_points[] = { {0, 0}, {1, 1}};
     lv_obj_t * line1;
     line1 = lv_line_create(lv_scr_act(), NULL);
@@ -140,9 +178,8 @@ void lv_tutorial_objects(void)
     int btnmY = lv_obj_get_y(line1) + 20;
     lv_obj_del(line1);
     
-    static const char * autonTypes[] = {"1", "2", "3", "4", ""};
 
-    lv_obj_t * autonTypeBtnm = lv_btnm_create(scr1, NULL);
+    // Create button map for auton type
     lv_btnm_set_map(autonTypeBtnm, autonTypes);
     lv_btnm_set_toggle(autonTypeBtnm, true, 0);
     // lv_obj_align(autonTypeBtnm, autonRedBtn, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
@@ -150,57 +187,107 @@ void lv_tutorial_objects(void)
     lv_obj_set_y(autonTypeBtnm, btnmY);
     lv_obj_set_size(autonTypeBtnm, btnmWidth, 50);
 
-    // // lv_obj_t * autonTypeBtnm = lv_btnm_create(scr1, NULL);
+    // Create Screen Change Buttons
+    lv_obj_t * scr1ChangeBtn = lv_btn_create(scr0, NULL);
+    lv_obj_set_size(scr1ChangeBtn, 40, 40);
+    lv_btn_set_action(scr1ChangeBtn, LV_BTN_ACTION_CLICK, setScr1Action);
+    lv_obj_align(scr1ChangeBtn, logo, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+
+    lv_obj_t * scr2ChangeBtn = lv_btn_create(scr0, scr1ChangeBtn);
+    lv_btn_set_action(scr1ChangeBtn, LV_BTN_ACTION_CLICK, setScr2Action);
+    lv_obj_align(scr1ChangeBtn, logo, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 10);
+
+    // Make their labels
+    lv_obj_t * scr1ChangeBtnLabel = lv_label_create(scr1ChangeBtn, NULL);
+    lv_label_set_align(scr1ChangeBtnLabel, LV_LABEL_ALIGN_CENTER);
+    lv_label_set_text(scr1ChangeBtnLabel, "A");
+    lv_obj_align(scr1ChangeBtnLabel, scr1ChangeBtn, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t * scr2ChangeBtnLabel = lv_label_create(scr2ChangeBtn, scr1ChangeBtnLabel);
+    lv_label_set_text(scr2ChangeBtnLabel, "S");
+    lv_obj_align(scr2ChangeBtnLabel, scr2ChangeBtn, LV_ALIGN_CENTER, 0, 0);
+
+
+
+    // SCREEN 1 OBJECTS
+
+    // Create screen label
+    lv_obj_t * autonScreenLabel = lv_label_create(scr1, NULL);
+    lv_label_set_text(autonScreenLabel,"Auton Tools");
+    lv_obj_align(autonScreenLabel, scr1, LV_ALIGN_IN_TOP_LEFT, 10, 10);
+
+
+
+    // SCREEN 2 OBJECTS
+
+    // Create screen label
+    lv_obj_t * statsScreenLabel = lv_label_create(scr2, NULL);
+    lv_label_set_text(statsScreenLabel,"Robot Stats");
+    lv_obj_align(statsScreenLabel, scr2, LV_ALIGN_IN_TOP_LEFT, 10, 10);
+
     
-    // while(true){
-    //     lv_bar_set_value(robotBatt, pros::battery::get_voltage());
+    while(true){
+        // Set values of battery bars
+        lv_bar_set_value(robotBatt, pros::battery::get_voltage());
         
-    //     lv_bar_set_value(controlBatt, master.get_battery_level());
+        lv_bar_set_value(controlBatt, master.get_battery_level());
         
-    //     robotPercent = (int) (pros::battery::get_voltage()/robotCapacity)*100;
-    //     robotStr = "Robot: " + std::to_string(robotPercent) + "\0";
-    //     const char * robotChar = robotStr.c_str();
-    //     lv_label_set_text(robotBattLabel, robotChar);
-    //     delete[] robotChar;
-        
-    //     controlPercent = (int) (master.get_battery_level()/controlCapacity)*100;
-    //     controlStr = "Control: " + std::to_string(controlPercent) + "\0";
-    //     const char * controlChar = robotStr.c_str();
-    //     lv_label_set_text(controlBattLabel, controlChar);
-    //     delete[] controlChar;
+        // Ensure that one color button is always toggled
+        if(lv_btn_get_state(autonBlueBtn) == 1){
+            lv_btn_set_state(autonRedBtn, LV_BTN_STATE_REL);
+        }
+        if(lv_btn_get_state(autonRedBtn) == 1){
+            lv_btn_set_state(autonBlueBtn, LV_BTN_STATE_REL);
+        }
 
+        if(lv_btn_get_state(autonBlueBtn) == 3){
+            lv_btn_set_state(autonRedBtn, LV_BTN_STATE_TGL_REL);
+        }
+        if(lv_btn_get_state(autonRedBtn) == 3){
+            lv_btn_set_state(autonBlueBtn, LV_BTN_STATE_TGL_REL);
+        }
+
+        // Store auton color
+        if(lv_btn_get_state(autonBlueBtn) == 2){
+            autonColor = 0;
+        }
+        if(lv_btn_get_state(autonRedBtn) == 2){
+            autonColor = 1;
+        }
+
+        // printf("%d\n", )
         
 
-    //     // for(x; x<=300; x++){
-    //     //     lv_obj_set_x(logo, x);
-    //     //     pros::delay(15);
-    //     // }
-    //     // for(x; x>=0; x--){
-    //     //     lv_obj_set_x(logo, x);
-    //     //     pros::delay(15);
-    //     // }
-    //     // if(x>=300 || x<=0){
-    //     //     xDirection = 1-xDirection;
-    //     //     // xRate = (rand() % 2) + 1;
-    //     // }
-    //     // if(y>=105 || y<=10){
-    //     //     yDirection = 1-yDirection;
-    //     //     // yRate = (rand() % 2) + 1;
-    //     // }
-    //     // if(xDirection == 1){
-    //     //     x++;
-    //     // }
-    //     // else{
-    //     //     x--;
-    //     // }
-    //     // if(yDirection == 1){
-    //     //     y++;
-    //     // }
-    //     // else{
-    //     //     y--;
-    //     // }
-    //     // lv_obj_set_x(logo, x);
-    //     // lv_obj_set_y(logo, y);
-    //     pros::delay(100);
-    // }
+        // for(x; x<=300; x++){
+        //     lv_obj_set_x(logo, x);
+        //     pros::delay(15);
+        // }
+        // for(x; x>=0; x--){
+        //     lv_obj_set_x(logo, x);
+        //     pros::delay(15);
+        // }
+        // if(x>=300 || x<=0){
+        //     xDirection = 1-xDirection;
+        //     // xRate = (rand() % 2) + 1;
+        // }
+        // if(y>=105 || y<=10){
+        //     yDirection = 1-yDirection;
+        //     // yRate = (rand() % 2) + 1;
+        // }
+        // if(xDirection == 1){
+        //     x++;
+        // }
+        // else{
+        //     x--;
+        // }
+        // if(yDirection == 1){
+        //     y++;
+        // }
+        // else{
+        //     y--;
+        // }
+        // lv_obj_set_x(logo, x);
+        // lv_obj_set_y(logo, y);
+        pros::delay(100);
+    }
 }
