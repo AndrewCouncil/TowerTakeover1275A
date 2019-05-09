@@ -1,7 +1,10 @@
 #include "main.h"
+#include "globals.hpp"
 #include "interface.h"
 
-
+pros::Controller master(pros::E_CONTROLLER_MASTER);
+const char * autonTypes[] = {"1", "2", "3", "4", ""};
+int autonColor = 1;
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -9,6 +12,7 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	
 	lv_tutorial_objects();
 }
 //
