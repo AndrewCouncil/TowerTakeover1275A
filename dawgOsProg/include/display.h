@@ -1,5 +1,4 @@
 
-#include <cstdlib>
 #include "display/lv_themes/lv_theme_templ_code.h"
 #include "display/lv_themes/lv_theme_default_code.h"
 // #include "display/lv_themes/lv_theme_alien_code.h"
