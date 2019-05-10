@@ -27,15 +27,9 @@ lv_obj_t * scr2 = lv_page_create(NULL, NULL);
 lv_obj_t * scr1 = lv_page_create(NULL, NULL);
 lv_obj_t * scr0 = lv_page_create(NULL, NULL);
 
-// SCREEN 0 OBJECTS
-lv_obj_t * robotBatt = lv_bar_create(scr0, NULL);
-lv_obj_t * logo = lv_img_create(scr0, NULL);
-lv_obj_t * controlBatt = lv_bar_create(scr0, NULL);
-lv_obj_t * robotBattLabel = lv_label_create(robotBatt, NULL);
-lv_obj_t * controlBattLabel = lv_label_create(controlBatt, NULL);
-lv_obj_t * autonTypeBtnm = lv_btnm_create(scr0, NULL);
 
 // SCREEN 1 OBJECTS
+const char * encoderValues = "ERROR - NO READOUTS";
 
 
 static lv_res_t setScr0Action(lv_obj_t * btn)
@@ -59,19 +53,26 @@ static lv_res_t setScr2Action(lv_obj_t * btn)
 
 void lv_tutorial_objects(void)
 {
-    // SCREEN 0 OBJECTS
-    
     /*Set the surent system theme*/
     lv_theme_set_current(th);
+
+    // SCREEN 0 OBJECTS
+    lv_obj_t * robotBatt = lv_bar_create(scr0, NULL);
+    lv_obj_t * logo = lv_img_create(scr0, NULL);
+    lv_obj_t * controlBatt = lv_bar_create(scr0, NULL);
+    lv_obj_t * robotBattLabel = lv_label_create(robotBatt, NULL);
+    lv_obj_t * controlBattLabel = lv_label_create(controlBatt, NULL);
+    lv_obj_t * autonTypeBtnm = lv_btnm_create(scr0, NULL);
     
     // Loads main screen
     lv_scr_load(scr0);
-
     // Create Logo and put in top left corner of main screen
     lv_img_set_src(logo, &DogLogo);
     lv_page_glue_obj(logo, true);
     lv_obj_align(logo, scr0, LV_ALIGN_IN_TOP_LEFT,5,5);
     lv_obj_set_protect(logo, LV_PROTECT_POS);
+    lv_obj_set_click(logo, true);
+    
     
     //Create bars for robot and controller battery and set it
     int robotCapacity   = 14500;
@@ -80,6 +81,7 @@ void lv_tutorial_objects(void)
     lv_bar_set_range(robotBatt, 0, robotCapacity);
     lv_bar_set_value(robotBatt, pros::battery::get_voltage());
     lv_obj_set_size(robotBatt, 140,30);
+
     lv_obj_align(robotBatt, logo, LV_ALIGN_OUT_RIGHT_TOP,20,0);
     lv_page_glue_obj(robotBatt, true);
     lv_obj_set_protect(robotBatt, LV_PROTECT_POS);
@@ -175,27 +177,46 @@ void lv_tutorial_objects(void)
     int btnmXMin = lv_obj_get_x(line1);
     int btnmWidth = btnmXMax - btnmXMin;
     lv_obj_align(line1, autonRedBtn, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
-    int btnmY = lv_obj_get_y(line1) + 20;
+    int btnmY = lv_obj_get_y(line1) + 15;
     lv_obj_del(line1);
+    
+    // Create style for btnm pressing
+    static lv_style_t style_btnm_tgl_rel;
+    lv_style_copy(&style_btnm_tgl_rel, &lv_style_btn_tgl_rel);
+    style_btnm_tgl_rel.body.main_color = LV_COLOR_MAKE(0xe5, 0xd2, 0x00);
+    style_btnm_tgl_rel.body.grad_color = LV_COLOR_MAKE(0x9b, 0x9e, 0x00);
     
 
     // Create button map for auton type
-    lv_btnm_set_map(autonTypeBtnm, autonTypes);
+    
+    // int SIZE = sizeof(autonTypes)/4;
+    // const char * autonTypesLoc[SIZE];
+    // for(unsigned int i = 0; i < SIZE; i++){
+    //     autonTypesLoc[i] = autonTypes[i];
+    // }
+    const char * autonTypesLoc[] = {"1", "2", "3", "4", ""};
+    lv_btnm_set_map(autonTypeBtnm, autonTypesLoc);
     lv_btnm_set_toggle(autonTypeBtnm, true, 0);
     // lv_obj_align(autonTypeBtnm, autonRedBtn, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
     lv_obj_set_x(autonTypeBtnm, btnmXMin);
     lv_obj_set_y(autonTypeBtnm, btnmY);
     lv_obj_set_size(autonTypeBtnm, btnmWidth, 50);
+    lv_btnm_set_style(autonTypeBtnm, LV_BTNM_STYLE_BTN_TGL_REL, &style_btnm_tgl_rel);
+    
+    
+    lv_obj_set_x(logo, lv_obj_get_x(logo) + 10);
+    
+    lv_obj_set_y(logo, lv_obj_get_y(logo) - 10);
 
     // Create Screen Change Buttons
     lv_obj_t * scr1ChangeBtn = lv_btn_create(scr0, NULL);
     lv_obj_set_size(scr1ChangeBtn, 40, 40);
     lv_btn_set_action(scr1ChangeBtn, LV_BTN_ACTION_CLICK, setScr1Action);
-    lv_obj_align(scr1ChangeBtn, logo, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+    lv_obj_align(scr1ChangeBtn, logo, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
 
     lv_obj_t * scr2ChangeBtn = lv_btn_create(scr0, scr1ChangeBtn);
     lv_btn_set_action(scr1ChangeBtn, LV_BTN_ACTION_CLICK, setScr2Action);
-    lv_obj_align(scr1ChangeBtn, logo, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 10);
+    lv_obj_align(scr1ChangeBtn, logo, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
 
     // Make their labels
     lv_obj_t * scr1ChangeBtnLabel = lv_label_create(scr1ChangeBtn, NULL);
@@ -207,14 +228,24 @@ void lv_tutorial_objects(void)
     lv_label_set_text(scr2ChangeBtnLabel, "S");
     lv_obj_align(scr2ChangeBtnLabel, scr2ChangeBtn, LV_ALIGN_CENTER, 0, 0);
 
-
+    // lv_obj_set_y(logo, lv_obj_get_y(logo) - 2);
 
     // SCREEN 1 OBJECTS
 
     // Create screen label
     lv_obj_t * autonScreenLabel = lv_label_create(scr1, NULL);
     lv_label_set_text(autonScreenLabel,"Auton Tools");
-    lv_obj_align(autonScreenLabel, scr1, LV_ALIGN_IN_TOP_LEFT, 10, 10);
+    lv_obj_align(autonScreenLabel, scr1, LV_ALIGN_IN_TOP_LEFT, 20, 10);
+
+    lv_obj_t * homeBtn1 = lv_btn_create(scr1, scr1ChangeBtn);
+    lv_btn_set_action(homeBtn1, LV_BTN_ACTION_CLICK, setScr0Action);
+    lv_obj_set_pos(homeBtn1, lv_obj_get_x(scr2ChangeBtn), lv_obj_get_y(scr2ChangeBtn));
+    // lv_obj_align(homeBtn1, scr1, LV_ALIGN_IN_BOTTOM_LEFT, 20, -20);
+
+    lv_obj_t * homeBtn1Label = lv_label_create(homeBtn1, scr1ChangeBtnLabel);
+    lv_label_set_text(homeBtn1Label, "H");
+    lv_obj_align(homeBtn1Label, homeBtn1, LV_ALIGN_CENTER, 0, 0);
+    // 
 
 
 
@@ -223,7 +254,33 @@ void lv_tutorial_objects(void)
     // Create screen label
     lv_obj_t * statsScreenLabel = lv_label_create(scr2, NULL);
     lv_label_set_text(statsScreenLabel,"Robot Stats");
-    lv_obj_align(statsScreenLabel, scr2, LV_ALIGN_IN_TOP_LEFT, 10, 10);
+    lv_obj_align(statsScreenLabel, scr2, LV_ALIGN_IN_TOP_LEFT, 20, 10);
+
+    lv_obj_t * homeBtn2 = lv_btn_create(scr2, homeBtn1);
+    // lv_obj_align(homeBtn2, scr2, LV_ALIGN_IN_BOTTOM_LEFT, 20, -20);
+    lv_obj_set_pos(homeBtn1, lv_obj_get_x(scr2ChangeBtn), lv_obj_get_y(scr2ChangeBtn));
+
+    lv_obj_t * homeBtn2Label = lv_label_create(homeBtn2, homeBtn1Label);
+    lv_obj_align(homeBtn2Label, homeBtn2, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t * encoderResetBtn = lv_btn_create(scr2, NULL);
+    // ADD FUNCTION CALL
+    lv_obj_set_size(encoderResetBtn, 75, 50);
+    
+    lv_obj_t * encoderReadoutsBox = lv_obj_create(scr2, NULL);
+
+    lv_obj_t * encoderReadouts = lv_label_create(scr2, NULL);
+    lv_label_set_align(encoderReadouts, LV_LABEL_ALIGN_LEFT);
+    lv_label_set_long_mode(encoderReadouts, LV_LABEL_LONG_ROLL);
+    lv_label_set_text(encoderReadouts, encoderValues);
+    lv_obj_set_width(encoderReadouts, LV_HOR_RES - 40);
+    lv_obj_align(encoderReadouts, statsScreenLabel, LV_ALIGN_OUT_BOTTOM_LEFT, 10, 20);
+    
+    lv_obj_set_size(encoderReadoutsBox, lv_obj_get_width(encoderReadouts)+20, lv_obj_get_height(encoderReadouts)+20);
+    lv_obj_align(encoderReadoutsBox, encoderReadouts, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_parent(encoderReadouts, encoderReadoutsBox);
+
+    lv_obj_align(encoderResetBtn, encoderReadoutsBox, LV_ALIGN_OUT_TOP_RIGHT, 0, 10);
 
     
     while(true){

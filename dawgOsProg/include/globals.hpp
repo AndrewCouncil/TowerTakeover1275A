@@ -5,4 +5,4 @@
 
 extern pros::Controller master;
 extern int autonColor;
-extern const char * autonTypes[];
+extern const char * autonTypes[5];

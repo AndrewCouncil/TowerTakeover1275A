@@ -21,6 +21,7 @@ void opcontrol() {
 		// int left = master.get_analog(ANALOG_LEFT_Y);
 		// int right = master.get_analog(ANALOG_RIGHT_Y);
 		// printf("%d\n", master.get_battery_level());
+		printf("%d\n", sizeof(autonTypes));
 		// left_mtr = left;
 		// right_mtr = right;
 		pros::delay(100);

@@ -1,9 +1,14 @@
 #include "main.h"
 #include "globals.hpp"
+
+const char * autonTypes[] = {"1", "2", "3", "4", ""};
+
 #include "interface.h"
 
+
+
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-const char * autonTypes[] = {"1", "2", "3", "4", ""};
+
 int autonColor = 1;
 /**
  * Runs initialization code. This occurs as soon as the program is started.
