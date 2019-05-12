@@ -16,14 +16,32 @@
  */
 void opcontrol() {
 	// pros::Controller master(pros::E_CONTROLLER_MASTER);
-	
+	// master.print(1,0,"->%d", pros::battery::get_capacity());
+	// master.rumble("...");
+	int aPressed;
 	while (true) {
 		// int left = master.get_analog(ANALOG_LEFT_Y);
 		// int right = master.get_analog(ANALOG_RIGHT_Y);
-		// printf("%d\n", master.get_battery_level());
-		printf("%d\n", sizeof(autonTypes));
+		// printf("%d\n", pros::battery::get_capacity());
+		// master.clear();
+		// printf("%d\n", led_x);
+		// if(autonArmed){
+		// 	printf("Armed!\n");
+		// }
+		// else{
+		// 	printf("-----\n");
+		// }
 		// left_mtr = left;
 		// right_mtr = right;
-		pros::delay(100);
+		if(autonArmed){
+			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A) && aPressed){
+				autonomous();
+			}
+			aPressed = (int) master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
+		}
+		else{
+
+		}
+		pros::delay(20);
 	}
 }

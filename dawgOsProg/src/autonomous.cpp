@@ -12,5 +12,8 @@
  * from where it left off.
  */
 void autonomous() {
-    
+    driveFR = 125;
+    pros::delay(1000);
+    driveFR = 0;
+    return;
 }

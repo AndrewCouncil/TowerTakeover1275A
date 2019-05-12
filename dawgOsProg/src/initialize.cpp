@@ -3,13 +3,35 @@
 
 const char * autonTypes[] = {"1", "2", "3", "4", ""};
 
-#include "interface.h"
-
+#include "interface.hpp"
 
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
+int driveFR_port = 1;
+int driveFL_port = 2;
+int driveBR_port = 3;
+int driveBL_port = 4;
+int driveM_port  = 5;
+int liftR_port   = 6;
+int liftL_port   = 7;
+int intake_port  = 8;
+
+// PORT 7 DEAD ON TEST BRAIN
+pros::Motor driveFR (driveFR_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor driveFL (driveFL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor driveBR (driveBR_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor driveBL (driveBL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor driveM  (driveM_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor liftR   (liftR_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor liftL   (liftL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor intake  (intake_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+
 int autonColor = 1;
+int autonType = 0;
+
+std::string debugOutput = "";
+bool autonArmed = false;
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -17,8 +39,8 @@ int autonColor = 1;
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	
-	lv_tutorial_objects();
+	pros::Task interface_task(interfaceInit, 0);
+	// interfaceInit();
 }
 //
 /**
