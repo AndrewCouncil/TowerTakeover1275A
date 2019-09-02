@@ -11,6 +11,16 @@
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
+
+// struct cartVect{
+//     float x, y;
+// }
+
+// struct polVect{
+//     float l, theta;
+// }
+
+
 void autonomous() {
     driveFR = 125;
     pros::delay(1000);

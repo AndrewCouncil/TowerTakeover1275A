@@ -1,3 +1,4 @@
+
 #include "main.h"
 #include "globals.hpp"
 
@@ -12,23 +13,24 @@ int driveFR_port = 1;
 int driveFL_port = 2;
 int driveBR_port = 3;
 int driveBL_port = 4;
-int driveM_port  = 5;
-int liftR_port   = 6;
-int liftL_port   = 7;
-int intake_port  = 8;
+int tray_port    = 5;
+int lift_port    = 6;
+int intakeR_port = 7;
+int intakeL_port = 8;
 
 // PORT 7 DEAD ON TEST BRAIN
-pros::Motor driveFR (driveFR_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor driveFR (driveFR_port, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
 pros::Motor driveFL (driveFL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-pros::Motor driveBR (driveBR_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor driveBR (driveBR_port, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
 pros::Motor driveBL (driveBL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-pros::Motor driveM  (driveM_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-pros::Motor liftR   (liftR_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-pros::Motor liftL   (liftL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-pros::Motor intake  (intake_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor tray    (tray_port,    MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor lift    (lift_port,    MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor intakeR (intakeR_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor intakeL (intakeL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
 
 int autonColor = 1;
 int autonType = 0;
+
 
 std::string debugOutput = "";
 bool autonArmed = false;
@@ -40,6 +42,7 @@ bool autonArmed = false;
  */
 void initialize() {
 	pros::Task interface_task(interfaceInit, 0);
+	// methodTester();
 	// interfaceInit();
 }
 //

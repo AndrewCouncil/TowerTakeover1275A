@@ -20,19 +20,6 @@ void opcontrol() {
 	// master.rumble("...");
 	int aPressed;
 	while (true) {
-		// int left = master.get_analog(ANALOG_LEFT_Y);
-		// int right = master.get_analog(ANALOG_RIGHT_Y);
-		// printf("%d\n", pros::battery::get_capacity());
-		// master.clear();
-		// printf("%d\n", led_x);
-		// if(autonArmed){
-		// 	printf("Armed!\n");
-		// }
-		// else{
-		// 	printf("-----\n");
-		// }
-		// left_mtr = left;
-		// right_mtr = right;
 		if(autonArmed){
 			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A) && aPressed){
 				autonomous();
@@ -40,7 +27,20 @@ void opcontrol() {
 			aPressed = (int) master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
 		}
 		else{
+			driveFL = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+			driveBL = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+			driveFR = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+			driveBR = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+			
+			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+				lift = 127;
+			}
+			else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+				
+			}
+			else{
 
+			}
 		}
 		pros::delay(20);
 	}

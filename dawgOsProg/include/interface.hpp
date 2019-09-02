@@ -443,12 +443,12 @@ void interfaceInit(void* param)
     lv_label_set_align(motorTempMeter7Label, LV_LABEL_ALIGN_CENTER);
     lv_label_set_align(motorTempMeter8Label, LV_LABEL_ALIGN_CENTER);
 
-    lv_label_set_text(motorTempMeter1Label, "L1");
-    lv_label_set_text(motorTempMeter2Label, "L2");
-    lv_label_set_text(motorTempMeter3Label, "I");
+    lv_label_set_text(motorTempMeter1Label, "L");
+    lv_label_set_text(motorTempMeter2Label, "IR");
+    lv_label_set_text(motorTempMeter3Label, "IL");
     lv_label_set_text(motorTempMeter4Label, "FR");
     lv_label_set_text(motorTempMeter5Label, "BR");
-    lv_label_set_text(motorTempMeter6Label, "M");
+    lv_label_set_text(motorTempMeter6Label, "T");
     lv_label_set_text(motorTempMeter7Label, "FL");
     lv_label_set_text(motorTempMeter8Label, "BL");
 
@@ -549,12 +549,12 @@ void interfaceInit(void* param)
         // MOTOR SCREEN ACTIONS
         else if (lv_scr_act() == scr2){
             
-            lv_lmeter_set_value(motorTempMeter1, liftR.get_temperature());
-            lv_lmeter_set_value(motorTempMeter2, liftL.get_temperature());
-            lv_lmeter_set_value(motorTempMeter3, intake.get_temperature());
+            lv_lmeter_set_value(motorTempMeter1, lift.get_temperature());
+            lv_lmeter_set_value(motorTempMeter2, intakeR.get_temperature());
+            lv_lmeter_set_value(motorTempMeter3, intakeL.get_temperature());
             lv_lmeter_set_value(motorTempMeter4, driveFR.get_temperature());
             lv_lmeter_set_value(motorTempMeter5, driveBR.get_temperature());
-            lv_lmeter_set_value(motorTempMeter6, driveM.get_temperature());
+            lv_lmeter_set_value(motorTempMeter6, tray.get_temperature());
             lv_lmeter_set_value(motorTempMeter7, driveFL.get_temperature());
             lv_lmeter_set_value(motorTempMeter8, driveBL.get_temperature());
 
@@ -586,13 +586,13 @@ void interfaceInit(void* param)
             }
 
             switch (currentMotorRead){
-                case 1: readout = "Lift Right   (P" + std::to_string(liftR_port) + ")\nTemp: " + std::to_string((int) liftR.get_temperature()) + "\nEncoder: " + std::to_string((int) liftR.get_position()) + "\nVelocity: " + std::to_string(liftR.get_actual_velocity());
+                case 1: readout = "Lift         (P" + std::to_string(lift_port) + ")\nTemp: " + std::to_string((int) lift.get_temperature()) + "\nEncoder: " + std::to_string((int) lift.get_position()) + "\nVelocity: " + std::to_string(lift.get_actual_velocity());
+                break;
+
+                case 2: readout = "Intake Right (P" + std::to_string(intakeR_port) + ")\nTemp: " + std::to_string((int) intakeR.get_temperature()) + "\nEncoder: " + std::to_string((int) intakeR.get_position()) + "\nVelocity: " + std::to_string(intakeR.get_actual_velocity());
                         break;
 
-                case 2: readout = "Lift Left    (P" + std::to_string(liftL_port) + ")\nTemp: " + std::to_string((int) liftL.get_temperature()) + "\nEncoder: " + std::to_string((int) liftL.get_position()) + "\nVelocity: " + std::to_string(liftL.get_actual_velocity());
-                        break;
-
-                case 3: readout = "Intake       (P" + std::to_string(intake_port) + ")\nTemp: " + std::to_string((int) intake.get_temperature()) + "\nEncoder: " + std::to_string((int) intake.get_position()) + "\nVelocity: " + std::to_string(intake.get_actual_velocity());
+                case 3: readout = "Intake Left  (P" + std::to_string(intakeL_port) + ")\nTemp: " + std::to_string((int) intakeL.get_temperature()) + "\nEncoder: " + std::to_string((int) intakeL.get_position()) + "\nVelocity: " + std::to_string(intakeL.get_actual_velocity());
                         break;
                 // Correct \/
                 case 4: readout = "Front Right  (P" + std::to_string(driveFR_port) + ")\nTemp: " + std::to_string((int) driveFR.get_temperature()) + "\nEncoder: " + std::to_string((int) driveFR.get_position()) + "\nVelocity: " + std::to_string(driveFR.get_actual_velocity());
@@ -601,7 +601,7 @@ void interfaceInit(void* param)
                 case 5: readout = "Back Right   (P" + std::to_string(driveBR_port) + ")\nTemp: " + std::to_string((int) driveBR.get_temperature()) + "\nEncoder: " + std::to_string((int) driveBR.get_position()) + "\nVelocity: " + std::to_string(driveBR.get_actual_velocity());
                         break;
 
-                case 6: readout = "Middle       (P" + std::to_string(driveM_port) + ")\nTemp: " + std::to_string((int) driveM.get_temperature()) + "\nEncoder: " + std::to_string((int) driveM.get_position()) + "\nVelocity: " + std::to_string(driveM.get_actual_velocity());
+                case 6: readout = "Tray         (P" + std::to_string(tray_port) + ")\nTemp: " + std::to_string((int) tray.get_temperature()) + "\nEncoder: " + std::to_string((int) tray.get_position()) + "\nVelocity: " + std::to_string(tray.get_actual_velocity());
                         break;
 
                 case 7: readout = "Front Left   (P" + std::to_string(driveFL_port) + ")\nTemp: " + std::to_string((int) driveFL.get_temperature()) + "\nEncoder: " + std::to_string((int) driveFL.get_position()) + "\nVelocity: " + std::to_string(driveFL.get_actual_velocity());
@@ -616,13 +616,13 @@ void interfaceInit(void* param)
 
             if(lv_btn_get_state(encoderResetBtn) == 1){
                 switch (currentMotorRead){
-                    case 1: liftR.tare_position();
+                    case 1: lift.tare_position();
                             break;
 
-                    case 2: liftL.tare_position();
+                    case 2: intakeR.tare_position();
                             break;
 
-                    case 3: intake.tare_position();
+                    case 3: intakeL.tare_position();
                             break;
                     // Correct \/
                     case 4: driveFR.tare_position();
@@ -631,7 +631,7 @@ void interfaceInit(void* param)
                     case 5: driveBR.tare_position();
                             break;
 
-                    case 6: driveM.tare_position();
+                    case 6: tray.tare_position();
                             break;
 
                     case 7: driveFL.tare_position();
@@ -649,39 +649,7 @@ void interfaceInit(void* param)
             lv_ta_set_cursor_pos(motorData, 0);
         }
 
-        
-        
 
-        // for(x; x<=300; x++){
-        //     lv_obj_set_x(logo, x);
-        //     pros::delay(15);
-        // }
-        // for(x; x>=0; x--){
-        //     lv_obj_set_x(logo, x);
-        //     pros::delay(15);
-        // }
-        // if(x>=300 || x<=0){
-        //     xDirection = 1-xDirection;
-        //     // xRate = (rand() % 2) + 1;
-        // }
-        // if(y>=105 || y<=10){
-        //     yDirection = 1-yDirection;
-        //     // yRate = (rand() % 2) + 1;
-        // }
-        // if(xDirection == 1){
-        //     x++;
-        // }
-        // else{
-        //     x--;
-        // }
-        // if(yDirection == 1){
-        //     y++;
-        // }
-        // else{
-        //     y--;
-        // }
-        // lv_obj_set_x(logo, x);
-        // lv_obj_set_y(logo, y);
         pros::delay(100);
     }
 }
