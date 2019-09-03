@@ -41,6 +41,7 @@ bool autonArmed = false;
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	// Starts the interface as a task
 	pros::Task interface_task(interfaceInit, 0);
 	// methodTester();
 	// interfaceInit();
