@@ -42,6 +42,8 @@
 #include "okapi/api.hpp"
 #include "pros/apix.h"
 
+#include <cmath>
+
 //#include "pros/api_legacy.h"
 
 /**

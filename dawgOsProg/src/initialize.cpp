@@ -23,7 +23,7 @@ pros::Motor driveFR (driveFR_port, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREE
 pros::Motor driveFL (driveFL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
 pros::Motor driveBR (driveBR_port, MOTOR_GEARSET_18, true,  MOTOR_ENCODER_DEGREES);
 pros::Motor driveBL (driveBL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-pros::Motor tray    (tray_port,    MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
+pros::Motor tray    (tray_port,    MOTOR_GEARSET_36, false, MOTOR_ENCODER_DEGREES);
 pros::Motor lift    (lift_port,    MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
 pros::Motor intakeR (intakeR_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
 pros::Motor intakeL (intakeL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);

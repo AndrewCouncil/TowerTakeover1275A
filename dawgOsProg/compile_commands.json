@@ -63,11 +63,11 @@
             "-fdiagnostics-color",
             "--std=gnu++17",
             "-o",
-            "bin/initialize.cpp.o",
-            "src\\initialize.cpp"
+            "bin/odometry.cpp.o",
+            "src\\odometry.cpp"
         ],
         "directory": "C:\\Main Files Backup\\TowerTakeover1275\\dawgOsProg",
-        "file": "src\\initialize.cpp"
+        "file": "src\\odometry.cpp"
     },
     {
         "arguments": [
@@ -98,11 +98,11 @@
             "-fdiagnostics-color",
             "--std=gnu++17",
             "-o",
-            "bin/autonomous.cpp.o",
-            "src\\autonomous.cpp"
+            "bin/initialize.cpp.o",
+            "src\\initialize.cpp"
         ],
         "directory": "C:\\Main Files Backup\\TowerTakeover1275\\dawgOsProg",
-        "file": "src\\autonomous.cpp"
+        "file": "src\\initialize.cpp"
     },
     {
         "arguments": [
@@ -164,10 +164,10 @@
             "-fdiagnostics-color",
             "--std=gnu++17",
             "-o",
-            "bin/odometry.cpp.o",
-            "src\\odometry.cpp"
+            "bin/autonomous.cpp.o",
+            "src\\autonomous.cpp"
         ],
         "directory": "C:\\Main Files Backup\\TowerTakeover1275\\dawgOsProg",
-        "file": "src\\odometry.cpp"
+        "file": "src\\autonomous.cpp"
     }
 ]
