@@ -16,7 +16,8 @@
  */
 
 // Sensitivity curve for the drive joysticks
-float sensitivityCurve(float input) {
+float sensitivityCurve(float input)
+{
 	// Applies custom curve to input stick value
 	float base = 0.0292 * input;
 	float add = 0.6 * input;
@@ -36,7 +37,8 @@ float sensitivityCurve(float input) {
 	return output;
 }
 
-void opcontrol() {
+void opcontrol()
+{
 	// pros::Controller master(pros::E_CONTROLLER_MASTER);
 	// master.print(1,0,"->%d", pros::battery::get_capacity());
 	// master.rumble("...");
@@ -48,21 +50,25 @@ void opcontrol() {
 	int upPressed;
 	int xPressed;
 	int aPressed;
-	while (true) {
+	while (true)
+	{
 		// Checks if autonomous has been armed. If it has, disable control and if a is pressed run auton
-		if(autonArmed){
-			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A) && aPressed){
+		if (autonArmed)
+		{
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A) && aPressed)
+			{
 				autonomous();
-			} 
-			aPressed = (int) master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
+			}
+			aPressed = (int)master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
 		}
-		else{
+		else
+		{
 			// get values of the left and right sticks
 			leftStickYVal = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
 			rightStickYVal = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
-			
+
 			// Puts both stick values through sensitivity curve function
-			leftVal  = sensitivityCurve(leftStickYVal);
+			leftVal = sensitivityCurve(leftStickYVal);
 			rightVal = sensitivityCurve(rightStickYVal);
 
 			// Sets motors to values
@@ -71,61 +77,76 @@ void opcontrol() {
 			driveBR = rightVal;
 			driveFR = rightVal;
 			debugOutput = std::to_string(leftVal) + "\n" + std::to_string(rightVal);
-			
+
 			// Set lift value based on R1 and R2
-			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+			{
 				lift = 127;
 			}
-			else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
+			{
 				lift = -127;
 			}
-			else{
+			else
+			{
 				lift = 0;
 			}
 
 			// Set tray value based on L1 and L2
-			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-				tray = 127;
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+			{
+				tray = -84;
 			}
-			else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-				tray = -127;
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+			{
+				tray = 84;
 			}
-			else{
+			else
+			{
 				tray = 0;
 			}
 
 			// Toggling forward and backward intake on and off with scuf buttons
-			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_UP) && !upPressed){
-				if(intakeState == 1){
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP) && !upPressed)
+			{
+				if (intakeState == 1)
+				{
 					intakeState = 0;
 				}
-				else{
+				else
+				{
 					intakeState = 1;
 				}
 			}
-			
-			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && !xPressed){
-				if(intakeState == -1){
+
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && !xPressed)
+			{
+				if (intakeState == -1)
+				{
 					intakeState = 0;
 				}
-				else{
+				else
+				{
 					intakeState = -1;
 				}
 			}
 
-			upPressed = (int) master.get_digital(pros::E_CONTROLLER_DIGITAL_UP);
-			xPressed  = (int) master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
-			
+			upPressed = (int)master.get_digital(pros::E_CONTROLLER_DIGITAL_UP);
+			xPressed = (int)master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
+
 			// Sets motor speeds based on state
-			if(intakeState == 1){
+			if (intakeState == 1)
+			{
 				intakeL = 127;
 				intakeR = 127;
 			}
-			else if(intakeState == -1){
+			else if (intakeState == -1)
+			{
 				intakeL = -127;
 				intakeR = -127;
 			}
-			else{
+			else
+			{
 				intakeL = 0;
 				intakeR = 0;
 			}
