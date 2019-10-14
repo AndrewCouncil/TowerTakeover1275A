@@ -19,7 +19,13 @@
 // struct polVect{
 //     float l, theta;
 // }
+using namespace okapi;
 
+auto myChassis = ChassisControllerFactory::create(
+  {(int8_t) driveFL_port, (int8_t) (-driveFR_port)}, {(int8_t) driveFL_port, (int8_t) (-driveBR_port)},
+  AbstractMotor::gearset::green,
+  {4_in, 11.2_in}
+);
 
 void autonomous() {
     driveFR = 125;

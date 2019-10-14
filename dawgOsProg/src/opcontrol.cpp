@@ -22,18 +22,6 @@ float sensitivityCurve(float input)
 	float base = 0.0292 * input;
 	float add = 0.6 * input;
 	float output = std::pow(base, 3.0) + add;
-	// double output = input;
-	// Makes sure value is inside [-127,127]
-	// if(output > 127){
-	// 	output = 127;
-	// }
-	// if(output < -127){
-	// 	output = -127;
-	// }
-	// Makes a deadzone
-	// if(std::abs(output) <= 5){
-	// 	output = 0;
-	// }
 	return output;
 }
 
