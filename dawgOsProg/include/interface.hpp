@@ -249,7 +249,7 @@ void interfaceInit(void* param)
     // for(unsigned int i = 0; i < SIZE; i++){
     //     autonTypesLoc[i] = autonTypes[i];
     // }
-    const char * autonTypesLoc[] = {"1", "2", "3", "4", ""};
+    const char * autonTypesLoc[] = {"1", "2", "3", "S", ""};
     lv_btnm_set_map(autonTypeBtnm, autonTypesLoc);
     lv_btnm_set_toggle(autonTypeBtnm, true, 0);
     // lv_obj_align(autonTypeBtnm, autonRedBtn, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
