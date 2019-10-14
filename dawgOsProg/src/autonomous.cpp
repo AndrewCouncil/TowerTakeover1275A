@@ -33,18 +33,19 @@ auto liftControl = AsyncControllerFactory::posIntegrated((int8_t)lift_port);
 void rollout() {
     trayControl.setMaxVelocity(150);
     liftControl.setMaxVelocity(300);
-    trayControl.setTarget(340_deg);
-    liftControl.setTarget(300_deg);
+    trayControl.setTarget(340);
+    liftControl.setTarget(300);
     while (!trayControl.isSettled()) {pros::delay(20);}
-    liftControl.setTarget(-175_deg);
-    while (!liftControl.isSettled()) {pros::delay(20);}
-    trayControl.setTarget(-60_deg);
+    liftControl.setTarget(-175);
+    // while (!liftControl.isSettled()) {pros::delay(20);}
+    trayControl.setTarget(-60);
     return;
 }
 
 void autonomous() {
     
     rollout();
+    
     pros::delay(1000);
     
     return;
