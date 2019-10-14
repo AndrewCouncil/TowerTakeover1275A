@@ -27,9 +27,25 @@ auto myChassis = ChassisControllerFactory::create(
   {4_in, 11.2_in}
 );
 
+auto trayControl = AsyncControllerFactory::posIntegrated((int8_t)tray_port);
+auto liftControl = AsyncControllerFactory::posIntegrated((int8_t)lift_port);
+
+void rollout() {
+    trayControl.setMaxVelocity(150);
+    liftControl.setMaxVelocity(300);
+    trayControl.setTarget(340_deg);
+    liftControl.setTarget(300_deg);
+    while (!trayControl.isSettled()) {pros::delay(20);}
+    liftControl.setTarget(-175_deg);
+    while (!liftControl.isSettled()) {pros::delay(20);}
+    trayControl.setTarget(-60_deg);
+    return;
+}
+
 void autonomous() {
-    driveFR = 125;
+    
+    rollout();
     pros::delay(1000);
-    driveFR = 0;
+    
     return;
 }
