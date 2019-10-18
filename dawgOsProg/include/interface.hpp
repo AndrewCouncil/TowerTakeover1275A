@@ -526,7 +526,7 @@ void interfaceInit(void* param)
 
             // Store auton color
             if(lv_btn_get_state(autonBlueBtn) == 2){
-                autonColor = 0;
+                autonColor = -1;
             }
             if(lv_btn_get_state(autonRedBtn) == 2){
                 autonColor = 1;
