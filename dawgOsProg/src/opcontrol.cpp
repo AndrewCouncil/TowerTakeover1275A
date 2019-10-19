@@ -69,11 +69,11 @@ void opcontrol()
 			// Set lift value based on R1 and R2
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 			{
-				lift = 127;
+				lift = 84;
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 			{
-				lift = -127;
+				lift = -84;
 			}
 			else
 			{
@@ -83,11 +83,11 @@ void opcontrol()
 			// Set tray value based on L1 and L2
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 			{
-				tray = -84;
+				tray = -50;
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 			{
-				tray = 84;
+				tray = 50;
 			}
 			else
 			{
@@ -125,13 +125,13 @@ void opcontrol()
 			// Sets motor speeds based on state
 			if (intakeState == 1)
 			{
-				intakeL = 127;
-				intakeR = 127;
+				intakeL = 100;
+				intakeR = 100;
 			}
 			else if (intakeState == -1)
 			{
-				intakeL = -127;
-				intakeR = -127;
+				intakeL = -50;
+				intakeR = -50;
 			}
 			else
 			{
