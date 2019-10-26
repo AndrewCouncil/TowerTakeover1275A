@@ -22,12 +22,11 @@
 using namespace okapi;
 
 auto driveControl = ChassisControllerFactory::create(
-  {(int8_t) driveFL_port, (int8_t) driveBL_port}, {(int8_t) (-driveFR_port), (int8_t) (-driveBR_port)},
-  AbstractMotor::gearset::green,
-  {4_in, 11_in}
-);
+    {(int8_t)driveFL_port, (int8_t)driveBL_port}, {(int8_t)(-driveFR_port), (int8_t)(-driveBR_port)},
+    AbstractMotor::gearset::green,
+    {4_in, 11_in});
 
-auto trayControl = AsyncControllerFactory::posIntegrated((int8_t)tray_port);
+auto trayControl = AsyncControllerFactory::posIntegrated((int8_t)(-tray_port));
 auto liftControl = AsyncControllerFactory::posIntegrated((int8_t)lift_port);
 /*
 void rollout() {
@@ -42,26 +41,30 @@ void rollout() {
     return;
 }*/
 
-void intakeIn(){
+void intakeIn()
+{
     intakeL = 127;
     intakeR = 127;
     return;
 }
 
-void intakeOut(){
+void intakeOut()
+{
     intakeL = -127;
     intakeR = -127;
     return;
 }
 
-void intakeStop(){
+void intakeStop()
+{
     intakeL = 0;
     intakeR = 0;
     return;
 }
 
 // Spits out cube from intake
-void intakeSpit(){
+void intakeSpit()
+{
     intakeL = -88;
     intakeR = -88;
     pros::delay(700);
@@ -69,30 +72,53 @@ void intakeSpit(){
     intakeR = 0;
 }
 
-void dropStack(){
-    trayControl.setMaxVelocity(40);
-    intakeL = -30;
-    intakeR = -30;
-    trayControl.setTarget(345);
-    while (!trayControl.isSettled()) {pros::delay(20);}
+void liftUp()
+{
+    trayControl.setMaxVelocity(60);
+    liftControl.setMaxVelocity(200);
+    trayControl.setTarget(240);
+    liftControl.setTarget(910);
+    while (!liftControl.isSettled())
+    {
+        pros::delay(20);
+    }
+}
+
+void dropStack()
+{
+    trayControl.setMaxVelocity(100);
+    // intakeL = -30;
+    // intakeR = -30;
+    trayControl.setTarget(800);
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
     pros::delay(1000);
+    driveControl.setMaxVelocity(25);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
     trayControl.setTarget(0);
     return;
 }
 
-void autonomous() {
-    
-    
+void autonomous()
+{
+    intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
+	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
     driveControl.setMaxVelocity(50);
-    if(autonType == 0){
+    if (autonType == 0)
+    {
         // ONE CUBE SPIT
 
         intakeOut();
-        driveControl.moveDistance(0.2_ft);
+        driveControl.moveDistance(0.3_ft);
         pros::delay(1000);
         intakeStop();
     }
-    else if (autonType == 1){
+    else if (autonType == 1)
+    {
         // FOUR CUBE STACK IN UNPROTECTED ZONE
 
         trayControl.setMaxVelocity(40);
@@ -105,16 +131,16 @@ void autonomous() {
         driveControl.moveDistance(3_ft);
         intakeStop();
         // Back up and turn toward corner
-        driveControl.moveDistance(-2.5_ft);
-        driveControl.turnAngle(135_deg);
+        driveControl.moveDistance(-1.7_ft);
+        driveControl.turnAngle(135_deg * autonColor);
+        driveControl.waitUntilSettled();
+        driveControl.stop();
         // Drive to goal and place
-        driveControl.moveDistance(2_ft);
+        driveControl.moveDistance(1.15_ft);
         dropStack();
-        // Back up and turn with back towards the big goal
-        driveControl.moveDistance(-1_ft);
-        intakeStop();        
     }
-    else if (autonType == 3){
+    else if (autonType == 3)
+    {
         // SKILLS AUTON
 
         trayControl.setMaxVelocity(40);
@@ -126,78 +152,44 @@ void autonomous() {
         intakeIn();
         driveControl.moveDistance(3_ft);
         intakeStop();
-        // Back up and turn toward corner
-        driveControl.moveDistance(-1.47_ft);
-        driveControl.turnAngle(140_deg);
-        // Drive to goal and place
-        driveControl.moveDistance(1.5_ft);
-        dropStack();
-        // Back up and turn with back towards the big goal
-        driveControl.moveDistance(-1_ft);
-        intakeStop();
-        driveControl.turnAngle(-45_deg);
-        // Back up and turn towards cube row
-        driveControl.moveDistance(-2.2_ft);
-        driveControl.turnAngle(-90_deg);
-        driveControl.moveDistance(-.9_ft);
-        // Pick up the cubes
-        intakeIn();
-        driveControl.moveDistance(2.5_ft);
-        intakeStop();
-        // Back up into wall
-        driveControl.moveDistance(-2.5_ft);
-        // Move out of wall and turn towards big goal
-        driveControl.moveDistance(0.25_ft);
-        driveControl.turnAngle(-90_deg);
-        // Drive to big goal and drop stack
-        driveControl.moveDistance(6.3_ft);
-        dropStack();
-        // Back up, turn to face orange cube
-        driveControl.moveDistance(-2.3_ft);
-        intakeStop();
-        driveControl.turnAngle(90_deg);
-        // Back up into wall and pick up 
-        driveControl.moveDistance(-0.25_ft);
-        intakeIn();
-        driveControl.moveDistance(0.5_ft);
-        intakeStop();
-        driveControl.moveDistance(0.5_ft);
-        // Turn towards tower and drive to it
-        driveControl.turnAngle(90_deg);
-        driveControl.moveDistance(2.2_ft);
-        // Move lift to position and move up to tower
-        liftControl.setTarget(600);
-        while (!liftControl.isSettled()) {pros::delay(20);}
-        driveControl.moveDistance(0.3_ft);
-        // Put cube in tower, move back, lower lift
-        intakeSpit();
-        return;
-        driveControl.moveDistance(-0.3_ft);
-        liftControl.setTarget(0);
-        // Pick up purple cube at tower base
-        intakeIn();
-        driveControl.moveDistance(0.3_ft);
-        intakeStop();
-        // Line up with red tower
-        driveControl.moveDistance(-2_ft);
-        driveControl.turnAngle(-90_deg);
+        // Go around pole and lign up
+        driveControl.turnAngle(45_deg);
         driveControl.moveDistance(1_ft);
-        driveControl.turnAngle(-90_deg);
-        // Drive up to red tower
-        driveControl.moveDistance(6.7_ft);
-        // Move lift to position and move up to tower
-        liftControl.setTarget(600);
-        while (!liftControl.isSettled()) {pros::delay(20);}
-        driveControl.moveDistance(0.3_ft);
-        // Put cube in tower, move back, lower lift
-        intakeSpit();
+        driveControl.turnAngle(-45_deg);
+        driveControl.moveDistance(2.25_ft);
+        driveControl.turnAngle(-45_deg);
+        driveControl.moveDistance(0.85_ft);
+        driveControl.turnAngle(45_deg);
+        // Pick up 3 cubes
+        intakeIn();
+        driveControl.moveDistance(2.2_ft);
+        pros::delay(1000);
+        intakeStop();
+        // Place down stack
+        driveControl.turnAngle(45_deg);
+        driveControl.moveDistance(1.55_ft);
+        dropStack();
+        // Line up with tower
+        driveControl.moveDistance(-1.7_ft);
+        driveControl.turnAngle(-135_deg);
+        // Pick up cube at base
+        intakeIn();
+        driveControl.moveDistance(1.4_ft);
         driveControl.moveDistance(-0.3_ft);
-        liftControl.setTarget(0);
+        intakeOut();
+        pros::delay(400);
+        intakeStop();
+        liftUp();
+        driveControl.moveDistance(0.15_ft);
+        intakeSpit();
+        driveControl.moveDistance(-0.5_ft);
+        liftControl.stop();
+        trayControl.stop();
     }
-    else if (autonType == 2){
-        // TEST CODE
-        driveControl.turnAngle(90_deg);
+    else if (autonType == 2)
+    {
+        dropStack();
     }
-    
+
     return;
 }
