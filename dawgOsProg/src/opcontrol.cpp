@@ -38,6 +38,9 @@ void opcontrol()
 	int upPressed;
 	int xPressed;
 	int aPressed;
+
+	intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
+	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
 	while (true)
 	{
 		// Checks if autonomous has been armed. If it has, disable control and if a is pressed run auton
@@ -70,10 +73,13 @@ void opcontrol()
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 			{
 				lift = 84;
+				tray = 50;
+
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 			{
 				lift = -84;
+				tray = -50;
 			}
 			else
 			{
@@ -83,11 +89,11 @@ void opcontrol()
 			// Set tray value based on L1 and L2
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 			{
-				tray = -50;
+				tray = 90;
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 			{
-				tray = 50;
+				tray = -90;
 			}
 			else
 			{
@@ -125,13 +131,13 @@ void opcontrol()
 			// Sets motor speeds based on state
 			if (intakeState == 1)
 			{
-				intakeL = 100;
-				intakeR = 100;
+				intakeL = 127;
+				intakeR = 127;
 			}
 			else if (intakeState == -1)
 			{
-				intakeL = -50;
-				intakeR = -50;
+				intakeL = -70;
+				intakeR = -70;
 			}
 			else
 			{
