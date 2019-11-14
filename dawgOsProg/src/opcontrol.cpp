@@ -25,6 +25,24 @@ float sensitivityCurve(float input)
 	return output;
 }
 
+float trayCurve(float input)
+{
+	// Applies curve to motor up value for tray
+	float c1 = (81 * input * input) - (46170 * input) + 6603225;
+	float c2 = std::sqrt(c1) - (9 * input) + 2565;
+	float c3 = std::cbrt(c2);
+	float output = ((5 * c3) / 2.08008382305) - (100 / (1.44224957031 * c3)) + 90;
+	if (input < 0)
+	{
+		return 127;
+	}
+	if (output < 30)
+	{
+		return 30;
+	}
+	return output;
+}
+
 void opcontrol()
 {
 	// pros::Controller master(pros::E_CONTROLLER_MASTER);
@@ -38,9 +56,11 @@ void opcontrol()
 	int upPressed;
 	int xPressed;
 	int aPressed;
+	int backupVal = -23;
 
 	intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
 	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
+	lift.set_brake_mode(MOTOR_BRAKE_HOLD);
 	while (true)
 	{
 		// Checks if autonomous has been armed. If it has, disable control and if a is pressed run auton
@@ -63,37 +83,51 @@ void opcontrol()
 			rightVal = sensitivityCurve(rightStickYVal);
 
 			// Sets motors to values
-			driveBL = leftVal;
-			driveFL = leftVal;
-			driveBR = rightVal;
-			driveFR = rightVal;
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
+			{
+				// Ryans idea, when b is pressed do a slow straight backup
+				driveBL = backupVal;
+				driveFL = backupVal;
+				driveBR = backupVal;
+				driveFR = backupVal;
+			}
+			else
+			{
+				driveBL = leftVal;
+				driveFL = leftVal;
+				driveBR = rightVal;
+				driveFR = rightVal;
+			}
 			debugOutput = std::to_string(leftVal) + "\n" + std::to_string(rightVal);
 
 			// Set lift value based on R1 and R2
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 			{
-				lift = 84;
-				tray = 50;
-
+				lift = 90;
+				tray = 46;
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 			{
-				lift = -84;
-				tray = -50;
+				lift = -90;
+				tray = -46;
 			}
 			else
 			{
 				lift = 0;
 			}
 
-			// Set tray value based on L1 and L2
+			// Set tray value based on L1 and L2 with emergency button
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 			{
-				tray = 90;
+				tray = trayCurve((float)tray.get_position());
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 			{
 				tray = -90;
+			}
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT))
+			{
+				tray = 75;
 			}
 			else
 			{

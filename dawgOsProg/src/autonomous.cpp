@@ -27,10 +27,10 @@ auto driveControl = ChassisControllerFactory::create(
     {4_in, 11.9_in});
 
 auto profileController = AsyncControllerFactory::motionProfile(
-  1.0,  // Maximum linear velocity of the Chassis in m/s
-  2.0,  // Maximum linear acceleration of the Chassis in m/s/s
-  10.0, // Maximum linear jerk of the Chassis in m/s/s/s
-  driveControl // Chassis Controller
+    1.0,         // Maximum linear velocity of the Chassis in m/s
+    2.0,         // Maximum linear acceleration of the Chassis in m/s/s
+    10.0,        // Maximum linear jerk of the Chassis in m/s/s/s
+    driveControl // Chassis Controller
 );
 
 auto trayControl = AsyncControllerFactory::posIntegrated((int8_t)(-tray_port));
@@ -47,6 +47,8 @@ void rollout() {
     trayControl.setTarget(-60);
     return;
 }*/
+
+int trayUpVal = 840;
 
 void intakeIn()
 {
@@ -77,6 +79,7 @@ void intakeSpit()
     pros::delay(700);
     intakeL = 0;
     intakeR = 0;
+    return;
 }
 
 void liftUp(bool high)
@@ -85,10 +88,12 @@ void liftUp(bool high)
     intakeOut();
     pros::delay(250);
     intakeStop();
-    if(high){
+    if (high)
+    {
         liftTarget = 1000;
     }
-    else{
+    else
+    {
         liftTarget = 765;
     }
 
@@ -106,9 +111,9 @@ void liftDown(bool wait)
 {
     trayControl.setMaxVelocity(60);
     liftControl.setMaxVelocity(200);
-    trayControl.setTarget(0);
-    pros::delay(1000);
     liftControl.setTarget(0);
+    pros::delay(750);
+    trayControl.setTarget(0);
     while (!liftControl.isSettled() && wait)
     {
         pros::delay(20);
@@ -120,13 +125,15 @@ void dropStack()
     trayControl.setMaxVelocity(55);
     // intakeL = -30;
     // intakeR = -30;
-    trayControl.setTarget(800);
+    liftControl.setTarget(-10);
+    trayControl.setTarget(trayUpVal);
     while (!trayControl.isSettled())
     {
         pros::delay(20);
     }
     pros::delay(500);
     driveControl.setMaxVelocity(30);
+    liftControl.stop();
     driveControl.moveDistance(-0.4_ft);
     driveControl.setMaxVelocity(50);
     intakeStop();
@@ -135,15 +142,18 @@ void dropStack()
     return;
 }
 
-void dropStackAsync(){
+void dropStackAsync()
+{
     trayControl.setMaxVelocity(55);
+    liftControl.setTarget(-10);
     // intakeL = -30;
     // intakeR = -30;
-    trayControl.setTarget(800);
+    trayControl.setTarget(trayUpVal);
 }
 
-void fourStack(){
-    // FOUR CUBE STACK IN UNPROTECTED ZONE
+void fiveStack()
+{
+    // five CUBE STACK IN UNPROTECTED ZONE
     driveControl.setMaxVelocity(50);
 
     trayControl.setMaxVelocity(40);
@@ -155,19 +165,96 @@ void fourStack(){
     trayControl.setTarget(0);
     intakeIn();
     driveControl.moveDistance(3_ft);
-    intakeStop();
     // Back up and turn toward corner
     driveControl.moveDistance(-1.3_ft);
+    intakeStop();
     driveControl.turnAngle(135_deg * autonColor);
     driveControl.waitUntilSettled();
     driveControl.stop();
     // Drive to goal and place
-    driveControl.moveDistance(1.5_ft);
+    driveControl.moveDistance(1.37_ft);
     dropStack();
     return;
 }
 
-void oldSkills(){
+void sixStack()
+{
+    // five CUBE STACK IN UNPROTECTED ZONE
+    driveControl.setMaxVelocity(63);
+
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+    // Rolls out to dispense tray
+    intakeOut();
+    intakeOut();
+    pros::delay(400);
+    // Pick up 5 cubes
+    trayControl.setTarget(0);
+    intakeIn();
+    driveControl.moveDistance(4.6_ft);
+    // driveControl.turnAngle(-7_deg * autonColor);
+    pros::delay(500);
+    // driveControl.turnAngle(7_deg * autonColor);
+
+    // Back up and turn toward corner
+    driveControl.moveDistance(-3.1_ft);
+    driveControl.turnAngle(135_deg * autonColor);
+    driveControl.waitUntilSettled();
+    driveControl.stop();
+
+    // Drive to goal and place
+    intakeStop();
+    dropStackAsync();
+    driveControl.setMaxVelocity(45);
+    driveControl.moveDistance(1.35_ft);
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
+    return;
+}
+
+void dumbassDefense(){
+    // Pushes the cubes across the field to screw peeps with a better auton up
+    driveControl.setMaxVelocity(78);
+
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+    // Rolls out to dispense tray
+    intakeOut();
+    intakeOut();
+    pros::delay(400);
+    intakeStop();
+    // Pick up 5 cubes
+    trayControl.setTarget(0);
+    driveControl.moveDistance(4.6_ft);
+    // driveControl.turnAngle(-7_deg * autonColor);
+    pros::delay(500);
+    // driveControl.turnAngle(7_deg * autonColor);
+
+    // Back up and turn toward corner
+    driveControl.setMaxVelocity(63);
+    driveControl.moveDistance(-3.1_ft);
+    driveControl.turnAngle(135_deg * autonColor);
+    driveControl.waitUntilSettled();
+    driveControl.stop();
+
+    // Drive to goal and place
+    driveControl.moveDistance(1.35_ft);
+    intakeOut();
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
+    return;
+}
+
+void oldSkills()
+{
     // SKILLS AUTON
     driveControl.setMaxVelocity(50);
 
@@ -215,11 +302,12 @@ void oldSkills(){
     trayControl.stop();
 }
 
-void absurdSkills(){
+void absurdSkills()
+{
     // Theoretical 56 point skills autonomous
 
     // Realistically, this probably won't work, but on the off chance, I need to crush everyone
-    
+
     driveControl.setMaxVelocity(70);
 
     trayControl.setMaxVelocity(40);
@@ -297,7 +385,8 @@ void absurdSkills(){
     driveControl.turnAngle(-23_deg);
 }
 
-void eightStack(){
+void eightStack()
+{
     // Yeet 8 cubes into the zone, very fast boi
 
     driveControl.setMaxVelocity(70);
@@ -307,48 +396,95 @@ void eightStack(){
 
     // Rolls out to dispense tray and lign up with wall(?)
     intakeOut();
-    pros::delay(500);
-    driveControl.setMaxVelocity(40);
-    driveControl.moveDistanceAsync(-0.5_ft);
+    intakeOut();
+    pros::delay(750);
+    // driveControl.setMaxVelocity(40);
+    // driveControl.moveDistanceAsync(-0.5_ft);
     trayControl.setTarget(0);
-    pros::delay(500);
-    driveControl.stop();
+    // pros::delay(500);
+    // driveControl.stop();
 
     // Pick up 3 cubes
     intakeIn();
-    driveControl.setMaxVelocity(85);
+    driveControl.setMaxVelocity(90);
     driveControl.moveDistance(3_ft);
     intakeStop();
 
     // Turn to cross and cross and lign up
     driveControl.setMaxVelocity(70);
-    driveControl.turnAngle(-20_deg * autonColor);
-    driveControl.setMaxVelocity(85);
-    driveControl.moveDistance(-3.6_ft);
+    driveControl.turnAngle(-37_deg * autonColor);
+    driveControl.setMaxVelocity(100);
+    driveControl.moveDistance(-3.12_ft);
     driveControl.setMaxVelocity(70);
-    driveControl.turnAngle(20_deg * autonColor);
+    driveControl.turnAngle(40_deg * autonColor);
 
     // Pick up 4 cubes
     trayControl.setTarget(0);
     intakeIn();
-    driveControl.setMaxVelocity(85);
-    driveControl.moveDistance(2.5_ft);
-    intakeStop();
+    driveControl.setMaxVelocity(60);
+    driveControl.moveDistance(3.2_ft);
     // Back up and turn toward corner
-    driveControl.moveDistance(-1.3_ft);
+    driveControl.setMaxVelocity(100);
+    driveControl.moveDistance(-2.2_ft);
     driveControl.setMaxVelocity(70);
     driveControl.turnAngle(135_deg * autonColor);
-    
     driveControl.waitUntilSettled();
     driveControl.stop();
+
     // Drive to goal and place
-    driveControl.setMaxVelocity(85);
+    intakeStop();
+    dropStackAsync();
+    driveControl.setMaxVelocity(30);
     driveControl.moveDistance(1.5_ft);
-    dropStack();
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
     return;
 }
 
-void oneCube(){
+void oneTower()
+{
+    driveControl.setMaxVelocity(90);
+
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+    // Rolls out to dispense tray
+    intakeOut();
+    intakeOut();
+    pros::delay(400);
+    intakeIn();
+    pros::delay(500);
+
+    // Drive between cubes to tower
+    driveControl.moveDistance(3.5_ft);
+    intakeStop();
+    liftUp(false);
+    driveControl.setMaxVelocity(63);
+    driveControl.turnAngle(13_deg * autonColor);
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(0.3_ft);
+    intakeSpit();
+    driveControl.setMaxVelocity(63);
+    driveControl.moveDistance(-1.1_ft);
+    liftDown(true);
+    driveControl.turnAngle(-165_deg * autonColor);
+    intakeIn();
+    driveControl.setMaxVelocity(90);
+    driveControl.moveDistance(2_ft);
+    intakeStop();
+    driveControl.turnAngle(25_deg * autonColor);
+    intakeOut();
+    driveControl.moveDistance(0.17_ft);
+    return;
+}
+
+void oneCube()
+{
     // ONE CUBE SPIT
 
     intakeOut();
@@ -357,27 +493,56 @@ void oneCube(){
     intakeStop();
 }
 
+void yeetCube(){
+    driveControl.setMaxVelocity(90);
+
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+    // Rolls out to dispense tray
+    intakeOut();
+    intakeOut();
+    pros::delay(400);
+    intakeIn();
+    pros::delay(500);
+    liftUp(false);
+    intakeOut();
+    pros::delay(1500);
+    intakeStop();
+}
+
 void autonomous()
 {
     intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
-	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
+    intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
     pros::delay(30);
     if (autonType == 0)
     {
-        fourStack();
+        fiveStack();
         // oneCube();
     }
     else if (autonType == 1)
+    {
+        sixStack();
+    }
+    else if (autonType == 2)
     {
         oneCube();
     }
     else if (autonType == 3)
     {
-        absurdSkills();
+        oneTower();
     }
-    else if (autonType == 2)
+    else if (autonType == 4)
     {
-        oneCube();
+        eightStack();
+    }
+    else if (autonType == 5)
+    {
+        dumbassDefense();
+    }
+    else if (autonType == 6)
+    {
+        absurdSkills();
     }
 
     return;
