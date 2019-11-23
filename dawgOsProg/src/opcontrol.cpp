@@ -43,6 +43,21 @@ float trayCurve(float input)
 	return output;
 }
 
+float trayCurveV2(float input){
+	float c1 = (4.58257569496 * std::sqrt((189 * input * input) - (159138 * input) + 33530549)) - (63 * input) + 26523;
+	float c2 = std::cbrt(c1);
+	float output = 1.04274265235 * c2 - (91.3342280793 / c2) + 90;
+	if (input < 0)
+	{
+		return 50;
+	}
+	if (output < 30)
+	{
+		return 30;
+	}
+	return output;
+}
+
 void opcontrol()
 {
 	// pros::Controller master(pros::E_CONTROLLER_MASTER);
@@ -57,10 +72,13 @@ void opcontrol()
 	int xPressed;
 	int aPressed;
 	int backupVal = -23;
+	int liftVal;
 
 	intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
 	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
 	lift.set_brake_mode(MOTOR_BRAKE_HOLD);
+
+	tray.set_zero_position(-840);
 	while (true)
 	{
 		// Checks if autonomous has been armed. If it has, disable control and if a is pressed run auton
@@ -98,40 +116,46 @@ void opcontrol()
 				driveBR = rightVal;
 				driveFR = rightVal;
 			}
-			debugOutput = std::to_string(leftVal) + "\n" + std::to_string(rightVal);
 
 			// Set lift value based on R1 and R2
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 			{
-				lift = 90;
+				liftVal = 90;
 				tray = 46;
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 			{
-				lift = -90;
+				liftVal = -90;
 				tray = -46;
 			}
 			else
 			{
-				lift = 0;
+				liftVal = 0;
 			}
 
 			// Set tray value based on L1 and L2 with emergency button
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 			{
-				tray = trayCurve((float)tray.get_position());
+				tray = 75;
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 			{
 				tray = -90;
 			}
-			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT))
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
 			{
-				tray = 75;
+				tray = trayCurveV2((float)tray.get_position());
+				liftVal = -55;
 			}
 			else
 			{
 				tray = 0;
+			}
+
+			lift = liftVal;
+			
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
+				tray.set_zero_position(0);
 			}
 
 			// Toggling forward and backward intake on and off with scuf buttons
@@ -178,6 +202,8 @@ void opcontrol()
 				intakeL = 0;
 				intakeR = 0;
 			}
+			
+			debugOutput = std::to_string(trayCurve(800));
 		}
 		pros::delay(20);
 	}

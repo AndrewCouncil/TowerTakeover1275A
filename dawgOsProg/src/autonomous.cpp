@@ -22,7 +22,7 @@
 using namespace okapi;
 
 auto driveControl = ChassisControllerFactory::create(
-    {(int8_t)driveFL_port, (int8_t)driveBL_port}, {(int8_t)(-driveFR_port), (int8_t)(-driveBR_port)},
+    {(int8_t)(driveFL_port), (int8_t)(driveBL_port)}, {(int8_t)(driveFR_port), (int8_t)(driveBR_port)},
     AbstractMotor::gearset::green,
     {4_in, 11.9_in});
 
@@ -218,7 +218,8 @@ void sixStack()
     return;
 }
 
-void dumbassDefense(){
+void dumbassDefense()
+{
     // Pushes the cubes across the field to screw peeps with a better auton up
     driveControl.setMaxVelocity(78);
 
@@ -447,6 +448,83 @@ void eightStack()
     return;
 }
 
+void eightStackPathing()
+{
+    if (autonColor == 1)
+    {
+        profileController.generatePath({Point{0_ft, 0_ft, 0_deg}, Point{2_ft, -5_ft, -64_deg}, Point{4_ft, -10_ft, 0_deg}}, "A");
+    }
+    else
+    {
+        profileController.generatePath({Point{0_ft, 0_ft, 0_deg},
+                                               Point{3_ft, 12_ft, 0_deg}},
+                                              "A");
+    }
+    // Yeet 8 cubes into the zone, very fast boi
+
+    driveControl.setMaxVelocity(70);
+
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+
+    // Rolls out to dispense tray and lign up with wall(?)
+    intakeOut();
+    intakeOut();
+    pros::delay(750);
+    // driveControl.setMaxVelocity(40);
+    // driveControl.moveDistanceAsync(-0.5_ft);
+    trayControl.setTarget(0);
+    // pros::delay(500);
+    // driveControl.stop();
+
+    // Pick up 3 cubes
+    intakeIn();
+    driveControl.setMaxVelocity(80);
+    driveControl.moveDistance(3_ft);
+    intakeStop();
+
+    // Lign up with the row of 4
+    driveFR.set_reversed(false);
+    driveBR.set_reversed(false);
+    driveFL.set_reversed(true);
+    driveBL.set_reversed(true);
+    profileController.setTarget("A");
+    profileController.waitUntilSettled();
+    driveFR.set_reversed(true);
+    driveBR.set_reversed(true);
+    driveFL.set_reversed(false);
+    driveBL.set_reversed(false);
+    return;
+
+    // Pick up 4 cubes
+    trayControl.setTarget(0);
+    intakeIn();
+    driveControl.setMaxVelocity(65);
+    driveControl.moveDistance(3.2_ft);
+    // Back up and turn toward corner
+    driveControl.setMaxVelocity(80);
+    driveControl.moveDistance(-2.2_ft);
+    driveControl.setMaxVelocity(70);
+    driveControl.turnAngle(135_deg * autonColor);
+    driveControl.waitUntilSettled();
+    driveControl.stop();
+
+    // Drive to goal and place
+    intakeStop();
+    dropStackAsync();
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(1.5_ft);
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
+    return;
+}
+
 void oneTower()
 {
     driveControl.setMaxVelocity(90);
@@ -493,7 +571,8 @@ void oneCube()
     intakeStop();
 }
 
-void yeetCube(){
+void yeetCube()
+{
     driveControl.setMaxVelocity(90);
 
     trayControl.setMaxVelocity(40);
@@ -534,7 +613,7 @@ void autonomous()
     }
     else if (autonType == 4)
     {
-        eightStack();
+        eightStackPathing();
     }
     else if (autonType == 5)
     {
