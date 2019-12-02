@@ -23,12 +23,17 @@ extern pros::Motor tray;
 extern pros::Motor lift;
 extern pros::Motor intakeR;
 extern pros::Motor intakeL;
+extern pros::ADIPort led;
+extern pros::ADIDigitalIn traySense;
 
 
 extern int autonColor;
 extern int autonType;
 extern bool autonArmed;
 extern const char * autonTypes[5];
+
+extern int autoLED;
+extern int selectedLED;
 
 extern float robotX;
 extern float robotY;

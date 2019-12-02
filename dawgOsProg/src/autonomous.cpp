@@ -591,6 +591,8 @@ void yeetCube()
 
 void autonomous()
 {
+    autoLED = 5;
+
     intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
     intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
     pros::delay(30);
