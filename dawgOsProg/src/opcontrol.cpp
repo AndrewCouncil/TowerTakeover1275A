@@ -15,6 +15,9 @@
  * task, not resume it from where it left off.
  */
 
+bool driverControlEnabled = true;
+bool liftTrayEnabled = true;
+
 // Sensitivity curve for the drive joysticks
 float sensitivityCurve(float input)
 {
@@ -43,7 +46,8 @@ float trayCurve(float input)
 	return output;
 }
 
-float trayCurveV2(float input){
+float trayCurveV2(float input)
+{
 	float c1 = (4.58257569496 * std::sqrt((189 * input * input) - (159138 * input) + 33530549)) - (63 * input) + 26523;
 	float c2 = std::cbrt(c1);
 	float output = 1.04274265235 * c2 - (91.3342280793 / c2) + 90;
@@ -58,8 +62,205 @@ float trayCurveV2(float input){
 	return output;
 }
 
+void liftTrayContol(void *param)
+{
+	int liftVal;
+	int trayVal;
+	int trayMacroPos = 440;
+	int liftMidPos = 1000;
+	int liftHighPos = 1600;
+	int liftMostlyDownPos = 200;
+
+	intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
+	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
+	lift.set_brake_mode(MOTOR_BRAKE_HOLD);
+	while (!(pros::competition::is_autonomous) && !(pros::competition::is_disabled))
+	{
+		if (driverControlEnabled)
+		{
+			// Set lift value based on X and Y
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
+			{
+				liftVal = 90;
+			}
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
+			{
+				liftVal = -90;
+			}
+			else
+			{
+				liftVal = 0;
+			}
+
+			// Set tray value based on L1 and L2 with emergency button
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT))
+			{
+				trayVal = 75;
+				autoLED = 2;
+			}
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+			{
+				trayVal = -90;
+				autoLED = 2;
+			}
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+			{
+				trayVal = trayCurveV2((float)tray.get_position());
+				liftVal = -55;
+				autoLED = 3;
+			}
+			else
+			{
+				trayVal = 0;
+				autoLED = 2;
+			}
+
+			while(liftTrayEnabled)
+			{
+				if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && lift.get_position() < liftHighPos)
+				{
+					// Lift HIGH Macro
+					autoLED = 3;
+					if (tray.get_position() < trayMacroPos)
+					{
+						tray = 127;
+						lift = 100;
+						while (tray.get_position() < trayMacroPos)
+						{
+							pros::delay(20);
+						}
+						tray = 0;
+					}
+					else if (tray.get_position() > trayMacroPos)
+					{
+						tray = -127;
+						while (tray.get_position() > trayMacroPos)
+						{
+							pros::delay(20);
+						}
+						tray = 0;
+						lift = 100;
+					}
+					while (lift.get_position() < liftHighPos)
+					{
+						pros::delay(20);
+					}
+					lift = 0;
+					autoLED = 2;
+				}
+				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y) && lift.get_position() < liftMidPos)
+				{
+					// Lift MID Macro for when lift is BELOW POSITION
+					autoLED = 3;
+					if (tray.get_position() < trayMacroPos)
+					{
+						tray = 127;
+						lift = 100;
+						while (tray.get_position() < trayMacroPos)
+						{
+							pros::delay(20);
+						}
+						tray = 0;
+					}
+					else if (tray.get_position() > trayMacroPos)
+					{
+						tray = -127;
+						while (tray.get_position() > trayMacroPos)
+						{
+							pros::delay(20);
+						}
+						tray = 0;
+						lift = 100;
+					}
+					while (lift.get_position() < liftMidPos)
+					{
+						pros::delay(20);
+					}
+					lift = 0;
+					autoLED = 2;
+				}
+				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y) && lift.get_position() > liftMidPos)
+				{
+					// Lift MID Macro for when lift is ABOVE POSITION
+					autoLED = 3;
+					if (tray.get_position() < trayMacroPos)
+					{
+						tray = 127;
+						while (tray.get_position() < trayMacroPos)
+						{
+							pros::delay(20);
+						}
+						tray = 0;
+						lift = -100;
+					}
+					else if (tray.get_position() > trayMacroPos)
+					{
+						tray = -127;
+						while (tray.get_position() > trayMacroPos)
+						{
+							pros::delay(20);
+						}
+						tray = 0;
+						lift = -100;
+					}
+					while (lift.get_position() > liftMidPos)
+					{
+						pros::delay(20);
+					}
+					lift = 0;
+					autoLED = 2;
+				}
+				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && lift.get_position() > 0)
+				{
+					// Lift DOWN Macro
+					if(tray.get_position() > trayMacroPos + 30){
+						tray = -127;
+					}
+					else if(tray.get_position() < trayMacroPos - 30){
+						tray = 127;
+					}
+					while(tray.get_position() < trayMacroPos - 30 || tray.get_position() > trayMacroPos + 30){
+						pros::delay(20);
+					}
+					tray = 0;
+					autoLED = 3;
+					lift = -100;
+					while (lift.get_position() > liftMostlyDownPos)
+					{
+						pros::delay(20);
+					}
+					lift.set_brake_mode(MOTOR_BRAKE_COAST);
+					lift = -12;
+					tray = -127;
+					while (traySense.get_value() == 0)
+					{
+						pros::delay(20);
+					}
+					lift = 0;
+					tray = 0;
+					tray.set_zero_position(0);
+					lift.set_brake_mode(MOTOR_BRAKE_HOLD);
+					autoLED = 2;
+				}
+				else
+				{
+					tray = trayVal;
+					lift = liftVal;
+				}
+				break;
+			}
+			if (traySense.get_value() == 1)
+			{
+				tray.set_zero_position(0);
+			}
+		}
+		pros::delay(20);
+	}
+}
+
 void opcontrol()
 {
+	autoLED = 2;
 	// pros::Controller master(pros::E_CONTROLLER_MASTER);
 	// master.print(1,0,"->%d", pros::battery::get_capacity());
 	// master.rumble("...");
@@ -72,18 +273,15 @@ void opcontrol()
 	int xPressed;
 	int aPressed;
 	int backupVal = -23;
-	int liftVal;
 
-	intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
-	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
-	lift.set_brake_mode(MOTOR_BRAKE_HOLD);
+	pros::Task liftTrayContol_task(liftTrayContol, 0, TASK_PRIORITY_DEFAULT);
 
-	tray.set_zero_position(-840);
 	while (true)
 	{
 		// Checks if autonomous has been armed. If it has, disable control and if a is pressed run auton
 		if (autonArmed)
 		{
+			driverControlEnabled = false;
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A) && aPressed)
 			{
 				autonomous();
@@ -92,6 +290,15 @@ void opcontrol()
 		}
 		else
 		{
+			driverControlEnabled = true;
+
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
+				liftTrayEnabled = false;
+			}
+			else{
+				liftTrayEnabled = true;
+			}
+
 			// get values of the left and right sticks
 			leftStickYVal = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
 			rightStickYVal = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
@@ -101,9 +308,9 @@ void opcontrol()
 			rightVal = sensitivityCurve(rightStickYVal);
 
 			// Sets motors to values
-			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
 			{
-				// Ryans idea, when b is pressed do a slow straight backup
+				// Ryans idea, when DOWN is pressed do a slow straight backup
 				driveBL = backupVal;
 				driveFL = backupVal;
 				driveBR = backupVal;
@@ -117,82 +324,13 @@ void opcontrol()
 				driveFR = rightVal;
 			}
 
-			// Set lift value based on R1 and R2
-			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
-			{
-				liftVal = 90;
-				tray = 46;
-			}
-			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-			{
-				liftVal = -90;
-				tray = -46;
-			}
-			else
-			{
-				liftVal = 0;
-			}
-
-			// Set tray value based on L1 and L2 with emergency button
-			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
-			{
-				tray = 75;
-			}
-			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-			{
-				tray = -90;
-			}
-			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
-			{
-				tray = trayCurveV2((float)tray.get_position());
-				liftVal = -55;
-			}
-			else
-			{
-				tray = 0;
-			}
-
-			lift = liftVal;
-			
-			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
-				tray.set_zero_position(0);
-			}
-
-			// Toggling forward and backward intake on and off with scuf buttons
-			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP) && !upPressed)
-			{
-				if (intakeState == 1)
-				{
-					intakeState = 0;
-				}
-				else
-				{
-					intakeState = 1;
-				}
-			}
-
-			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && !xPressed)
-			{
-				if (intakeState == -1)
-				{
-					intakeState = 0;
-				}
-				else
-				{
-					intakeState = -1;
-				}
-			}
-
-			upPressed = (int)master.get_digital(pros::E_CONTROLLER_DIGITAL_UP);
-			xPressed = (int)master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
-
-			// Sets motor speeds based on state
-			if (intakeState == 1)
+			// Sets motor speeds based on R! and R2
+			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 			{
 				intakeL = 127;
 				intakeR = 127;
 			}
-			else if (intakeState == -1)
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 			{
 				intakeL = -70;
 				intakeR = -70;
@@ -202,7 +340,7 @@ void opcontrol()
 				intakeL = 0;
 				intakeR = 0;
 			}
-			
+
 			debugOutput = std::to_string(trayCurve(800));
 		}
 		pros::delay(20);
