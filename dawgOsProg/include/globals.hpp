@@ -23,8 +23,8 @@ extern pros::Motor tray;
 extern pros::Motor lift;
 extern pros::Motor intakeR;
 extern pros::Motor intakeL;
-extern pros::ADIPort led;
-extern pros::ADIDigitalIn traySense;
+extern pros::ADIMotor led;
+// extern pros::ADIButton traySense;
 
 
 extern int autonColor;

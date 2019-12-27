@@ -24,7 +24,7 @@ using namespace okapi;
 auto driveControl = ChassisControllerFactory::create(
     {(int8_t)(driveFL_port), (int8_t)(driveBL_port)}, {(int8_t)(driveFR_port), (int8_t)(driveBR_port)},
     AbstractMotor::gearset::green,
-    {4_in, 11.9_in});
+    {4_in, 9.6_in});
 
 auto profileController = AsyncControllerFactory::motionProfile(
     1.0,         // Maximum linear velocity of the Chassis in m/s
@@ -48,7 +48,7 @@ void rollout() {
     return;
 }*/
 
-int trayUpVal = 840;
+int trayUpVal = 663;
 
 void intakeIn()
 {
@@ -90,16 +90,16 @@ void liftUp(bool high)
     intakeStop();
     if (high)
     {
-        liftTarget = 1000;
+        liftTarget = 620;
     }
     else
     {
-        liftTarget = 765;
+        liftTarget = 415;
     }
 
     trayControl.setMaxVelocity(150);
     liftControl.setMaxVelocity(200);
-    trayControl.setTarget(480);
+    trayControl.setTarget(336);
     liftControl.setTarget(liftTarget);
     while (!liftControl.isSettled())
     {
@@ -109,7 +109,7 @@ void liftUp(bool high)
 
 void liftDown(bool wait)
 {
-    trayControl.setMaxVelocity(60);
+    trayControl.setMaxVelocity(50);
     liftControl.setMaxVelocity(200);
     liftControl.setTarget(0);
     pros::delay(750);
@@ -137,8 +137,8 @@ void dropStack()
     driveControl.moveDistance(-0.4_ft);
     driveControl.setMaxVelocity(50);
     intakeStop();
-    trayControl.setTarget(0);
-    driveControl.setMaxVelocity(85);
+    // trayControl.setTarget(0);
+    // driveControl.setMaxVelocity(85);
     return;
 }
 
@@ -151,7 +151,58 @@ void dropStackAsync()
     trayControl.setTarget(trayUpVal);
 }
 
+void foldOut(bool wait)
+{
+    driveControl.setMaxVelocity(70);
+    trayControl.setMaxVelocity(55);
+    liftControl.setMaxVelocity(200);
+    // driveControl.moveDistance(0.3_ft);
+    // driveControl.moveDistanceAsync(-0.3_ft);
+    pros::delay(30);
+    trayControl.setTarget(220);
+    liftControl.setTarget(150);
+    intakeOut();
+    // driveControl.waitUntilSettled();
+    while(!liftControl.isSettled()){
+        intakeOut();
+        pros::delay(20);
+    }
+    trayControl.setTarget(0);
+    liftControl.setTarget(30);
+    while(!liftControl.isSettled() && wait){
+        pros::delay(20);
+    }
+    if(wait){
+        lift.set_zero_position(0);
+    }
+    return;
+}
+
 void fiveStack()
+{
+    driveControl.setMaxVelocity(65);
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+
+    foldOut(false);
+    // Pick up 4 cubes
+    intakeIn();
+    driveControl.moveDistance(3_ft);
+    liftControl.stop();
+    lift.set_zero_position(0);
+    // Back up and turn toward corner
+    driveControl.moveDistance(-1.3_ft);
+    intakeStop();
+    driveControl.turnAngle(135_deg * autonColor);
+    driveControl.waitUntilSettled();
+    driveControl.stop();
+    // Drive to goal and place
+    driveControl.moveDistance(1.37_ft);
+    dropStack();
+    return;
+}
+
+void oldFiveStack()
 {
     // five CUBE STACK IN UNPROTECTED ZONE
     driveControl.setMaxVelocity(50);
@@ -177,7 +228,128 @@ void fiveStack()
     return;
 }
 
-void sixStack()
+void sixStraight()
+{
+    // Six cube stack that goes straight for purple
+    driveControl.setMaxVelocity(63);
+
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+
+    foldOut(false);
+
+    // Pick up 5 cubes
+    trayControl.setTarget(0);
+    intakeIn();
+    driveControl.moveDistance(4.6_ft);
+    // driveControl.turnAngle(-7_deg * autonColor);
+    pros::delay(500);
+    // driveControl.turnAngle(7_deg * autonColor);
+
+    // Back up and turn toward corner
+    driveControl.moveDistance(-2_ft);
+    driveControl.turnAngle(135_deg * autonColor);
+    driveControl.waitUntilSettled();
+    driveControl.stop();
+
+    // Drive to goal and place
+    intakeOut();
+    pros::delay(400);
+    intakeStop();
+    dropStackAsync();
+    driveControl.setMaxVelocity(45);
+    driveControl.moveDistance(1.35_ft);
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
+    return;
+}
+
+void sixBent()
+{
+    // Six stack that turns for orange/green
+    driveControl.setMaxVelocity(65);
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+
+    foldOut(false);
+    // Pick up 5 cubes
+    trayControl.setTarget(0);
+    intakeIn();
+    driveControl.moveDistance(3_ft);
+    // Pick up 6th cube
+    driveControl.turnAngle(-45_deg * autonColor);
+    driveControl.moveDistance(1_ft);
+    driveControl.moveDistance(-1_ft);
+    driveControl.turnAngle(45_deg * autonColor);
+    // Back up and turn toward corner
+    driveControl.moveDistance(-1.3_ft);
+    intakeStop();
+    driveControl.turnAngle(135_deg * autonColor);
+    driveControl.waitUntilSettled();
+    driveControl.stop();
+    // Drive to goal and place
+
+    // Drive to goal and place
+    intakeStop();
+    dropStackAsync();
+    driveControl.setMaxVelocity(45);
+    driveControl.moveDistance(1.35_ft);
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
+    return;
+}
+
+void sixProtected(){
+    driveControl.setMaxVelocity(65);
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+    foldOut(false);
+    pros::delay(500);
+    lift.set_zero_position(0);
+
+    liftUp(true);
+    driveControl.moveDistance(2.4_ft);
+    driveControl.turnAngle(27_deg * autonColor);
+    driveControl.setMaxVelocity(45);
+    driveControl.moveDistance(0.6_ft);
+    intakeIn();
+    liftDown(true);
+    driveControl.moveDistance(0.5_ft);
+    driveControl.setMaxVelocity(65);
+    driveControl.turnAngle(153_deg * autonColor);
+    driveControl.moveDistance(2_ft);
+    driveControl.turnAngle(65_deg * autonColor);
+    
+    // Drive to goal and place
+    intakeStop();
+    driveControl.moveDistanceAsync(2_ft);
+    pros::delay(1300);
+    dropStackAsync();
+    
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
+    return;
+}
+
+void oldSixStack()
 {
     // five CUBE STACK IN UNPROTECTED ZONE
     driveControl.setMaxVelocity(63);
@@ -217,36 +389,138 @@ void sixStack()
     intakeStop();
     return;
 }
-
-void dumbassDefense()
+void eightStack()
 {
-    // Pushes the cubes across the field to screw peeps with a better auton up
-    driveControl.setMaxVelocity(78);
+    // Yeet 8 cubes into the zone, very fast boi
+
+    driveControl.setMaxVelocity(70);
 
     trayControl.setMaxVelocity(40);
     liftControl.setMaxVelocity(200);
-    // Rolls out to dispense tray
-    intakeOut();
-    intakeOut();
-    pros::delay(400);
-    intakeStop();
-    // Pick up 5 cubes
-    trayControl.setTarget(0);
-    driveControl.moveDistance(4.6_ft);
-    // driveControl.turnAngle(-7_deg * autonColor);
-    pros::delay(500);
-    // driveControl.turnAngle(7_deg * autonColor);
 
+    // Rolls out to dispense tray and lign up with wall(?)
+    intakeOut();
+    intakeOut();
+    pros::delay(750);
+    // driveControl.setMaxVelocity(40);
+    // driveControl.moveDistanceAsync(-0.5_ft);
+    trayControl.setTarget(0);
+    // pros::delay(500);
+    // driveControl.stop();
+
+    // Pick up 3 cubes
+    intakeIn();
+    driveControl.setMaxVelocity(90);
+    driveControl.moveDistance(3_ft);
+    intakeStop();
+
+    // Turn to cross and cross and lign up
+    driveControl.setMaxVelocity(70);
+    driveControl.turnAngle(-37_deg * autonColor);
+    driveControl.setMaxVelocity(100);
+    driveControl.moveDistance(-3.12_ft);
+    driveControl.setMaxVelocity(70);
+    driveControl.turnAngle(40_deg * autonColor);
+
+    // Pick up 4 cubes
+    trayControl.setTarget(0);
+    intakeIn();
+    driveControl.setMaxVelocity(60);
+    driveControl.moveDistance(3.2_ft);
     // Back up and turn toward corner
-    driveControl.setMaxVelocity(63);
-    driveControl.moveDistance(-3.1_ft);
+    driveControl.setMaxVelocity(100);
+    driveControl.moveDistance(-2.2_ft);
+    driveControl.setMaxVelocity(70);
     driveControl.turnAngle(135_deg * autonColor);
     driveControl.waitUntilSettled();
     driveControl.stop();
 
     // Drive to goal and place
-    driveControl.moveDistance(1.35_ft);
+    intakeStop();
+    dropStackAsync();
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(1.5_ft);
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(-0.4_ft);
+    driveControl.setMaxVelocity(50);
+    intakeStop();
+    return;
+}
+
+void eightStackPathing()
+{
+    if (autonColor == 1)
+    {
+        profileController.generatePath({Point{0_ft, 0_ft, 0_deg}, Point{2_ft, -5_ft, -64_deg}, Point{4_ft, -10_ft, 0_deg}}, "A");
+    }
+    else
+    {
+        profileController.generatePath({Point{0_ft, 0_ft, 0_deg},
+                                        Point{3_ft, 12_ft, 0_deg}},
+                                       "A");
+    }
+    // Yeet 8 cubes into the zone, very fast boi
+
+    driveControl.setMaxVelocity(70);
+
+    trayControl.setMaxVelocity(40);
+    liftControl.setMaxVelocity(200);
+
+    // Rolls out to dispense tray and lign up with wall(?)
     intakeOut();
+    intakeOut();
+    pros::delay(750);
+    // driveControl.setMaxVelocity(40);
+    // driveControl.moveDistanceAsync(-0.5_ft);
+    trayControl.setTarget(0);
+    // pros::delay(500);
+    // driveControl.stop();
+
+    // Pick up 3 cubes
+    intakeIn();
+    driveControl.setMaxVelocity(80);
+    driveControl.moveDistance(3_ft);
+    intakeStop();
+
+    // Lign up with the row of 4
+    driveFR.set_reversed(false);
+    driveBR.set_reversed(false);
+    driveFL.set_reversed(true);
+    driveBL.set_reversed(true);
+    profileController.setTarget("A");
+    profileController.waitUntilSettled();
+    driveFR.set_reversed(true);
+    driveBR.set_reversed(true);
+    driveFL.set_reversed(false);
+    driveBL.set_reversed(false);
+    return;
+
+    // Pick up 4 cubes
+    trayControl.setTarget(0);
+    intakeIn();
+    driveControl.setMaxVelocity(65);
+    driveControl.moveDistance(3.2_ft);
+    // Back up and turn toward corner
+    driveControl.setMaxVelocity(80);
+    driveControl.moveDistance(-2.2_ft);
+    driveControl.setMaxVelocity(70);
+    driveControl.turnAngle(135_deg * autonColor);
+    driveControl.waitUntilSettled();
+    driveControl.stop();
+
+    // Drive to goal and place
+    intakeStop();
+    dropStackAsync();
+    driveControl.setMaxVelocity(30);
+    driveControl.moveDistance(1.5_ft);
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
     driveControl.setMaxVelocity(30);
     driveControl.moveDistance(-0.4_ft);
     driveControl.setMaxVelocity(50);
@@ -386,145 +660,6 @@ void absurdSkills()
     driveControl.turnAngle(-23_deg);
 }
 
-void eightStack()
-{
-    // Yeet 8 cubes into the zone, very fast boi
-
-    driveControl.setMaxVelocity(70);
-
-    trayControl.setMaxVelocity(40);
-    liftControl.setMaxVelocity(200);
-
-    // Rolls out to dispense tray and lign up with wall(?)
-    intakeOut();
-    intakeOut();
-    pros::delay(750);
-    // driveControl.setMaxVelocity(40);
-    // driveControl.moveDistanceAsync(-0.5_ft);
-    trayControl.setTarget(0);
-    // pros::delay(500);
-    // driveControl.stop();
-
-    // Pick up 3 cubes
-    intakeIn();
-    driveControl.setMaxVelocity(90);
-    driveControl.moveDistance(3_ft);
-    intakeStop();
-
-    // Turn to cross and cross and lign up
-    driveControl.setMaxVelocity(70);
-    driveControl.turnAngle(-37_deg * autonColor);
-    driveControl.setMaxVelocity(100);
-    driveControl.moveDistance(-3.12_ft);
-    driveControl.setMaxVelocity(70);
-    driveControl.turnAngle(40_deg * autonColor);
-
-    // Pick up 4 cubes
-    trayControl.setTarget(0);
-    intakeIn();
-    driveControl.setMaxVelocity(60);
-    driveControl.moveDistance(3.2_ft);
-    // Back up and turn toward corner
-    driveControl.setMaxVelocity(100);
-    driveControl.moveDistance(-2.2_ft);
-    driveControl.setMaxVelocity(70);
-    driveControl.turnAngle(135_deg * autonColor);
-    driveControl.waitUntilSettled();
-    driveControl.stop();
-
-    // Drive to goal and place
-    intakeStop();
-    dropStackAsync();
-    driveControl.setMaxVelocity(30);
-    driveControl.moveDistance(1.5_ft);
-    while (!trayControl.isSettled())
-    {
-        pros::delay(20);
-    }
-    driveControl.setMaxVelocity(30);
-    driveControl.moveDistance(-0.4_ft);
-    driveControl.setMaxVelocity(50);
-    intakeStop();
-    return;
-}
-
-void eightStackPathing()
-{
-    if (autonColor == 1)
-    {
-        profileController.generatePath({Point{0_ft, 0_ft, 0_deg}, Point{2_ft, -5_ft, -64_deg}, Point{4_ft, -10_ft, 0_deg}}, "A");
-    }
-    else
-    {
-        profileController.generatePath({Point{0_ft, 0_ft, 0_deg},
-                                               Point{3_ft, 12_ft, 0_deg}},
-                                              "A");
-    }
-    // Yeet 8 cubes into the zone, very fast boi
-
-    driveControl.setMaxVelocity(70);
-
-    trayControl.setMaxVelocity(40);
-    liftControl.setMaxVelocity(200);
-
-    // Rolls out to dispense tray and lign up with wall(?)
-    intakeOut();
-    intakeOut();
-    pros::delay(750);
-    // driveControl.setMaxVelocity(40);
-    // driveControl.moveDistanceAsync(-0.5_ft);
-    trayControl.setTarget(0);
-    // pros::delay(500);
-    // driveControl.stop();
-
-    // Pick up 3 cubes
-    intakeIn();
-    driveControl.setMaxVelocity(80);
-    driveControl.moveDistance(3_ft);
-    intakeStop();
-
-    // Lign up with the row of 4
-    driveFR.set_reversed(false);
-    driveBR.set_reversed(false);
-    driveFL.set_reversed(true);
-    driveBL.set_reversed(true);
-    profileController.setTarget("A");
-    profileController.waitUntilSettled();
-    driveFR.set_reversed(true);
-    driveBR.set_reversed(true);
-    driveFL.set_reversed(false);
-    driveBL.set_reversed(false);
-    return;
-
-    // Pick up 4 cubes
-    trayControl.setTarget(0);
-    intakeIn();
-    driveControl.setMaxVelocity(65);
-    driveControl.moveDistance(3.2_ft);
-    // Back up and turn toward corner
-    driveControl.setMaxVelocity(80);
-    driveControl.moveDistance(-2.2_ft);
-    driveControl.setMaxVelocity(70);
-    driveControl.turnAngle(135_deg * autonColor);
-    driveControl.waitUntilSettled();
-    driveControl.stop();
-
-    // Drive to goal and place
-    intakeStop();
-    dropStackAsync();
-    driveControl.setMaxVelocity(30);
-    driveControl.moveDistance(1.5_ft);
-    while (!trayControl.isSettled())
-    {
-        pros::delay(20);
-    }
-    driveControl.setMaxVelocity(30);
-    driveControl.moveDistance(-0.4_ft);
-    driveControl.setMaxVelocity(50);
-    intakeStop();
-    return;
-}
-
 void oneTower()
 {
     driveControl.setMaxVelocity(90);
@@ -564,11 +699,10 @@ void oneTower()
 void oneCube()
 {
     // ONE CUBE SPIT
-
-    intakeOut();
-    driveControl.moveDistance(0.3_ft);
-    pros::delay(1000);
-    intakeStop();
+    
+    foldOut(false);
+    driveControl.setMaxVelocity(90);
+    driveControl.moveDistance(-1.5_ft);
 }
 
 void yeetCube()
@@ -589,6 +723,13 @@ void yeetCube()
     intakeStop();
 }
 
+void turnTest()
+{
+    foldOut(true);
+    // driveControl.setMaxVelocity(65);
+    // driveControl.turnAngle(90_deg * autonColor);
+}
+
 void autonomous()
 {
     autoLED = 5;
@@ -603,25 +744,29 @@ void autonomous()
     }
     else if (autonType == 1)
     {
-        sixStack();
+        sixStraight();
     }
     else if (autonType == 2)
     {
-        oneCube();
+        sixProtected();
     }
     else if (autonType == 3)
     {
-        oneTower();
+        eightStack();
     }
     else if (autonType == 4)
     {
-        eightStackPathing();
+        oneTower();
     }
     else if (autonType == 5)
     {
-        dumbassDefense();
+        oneCube();
     }
     else if (autonType == 6)
+    {
+        turnTest();
+    }
+    else if (autonType == 7)
     {
         absurdSkills();
     }
