@@ -1,3 +1,34 @@
+/*    ______                       ____   _____   */ 
+/*   |  __ \                     / __ \ / ____|   */
+/*   | |  | | __ ___      ____ _| |  | | (___     */
+/*   | |  | |/ _` \ \ /\ / / _` | |  | |\___ \    */
+/*   | |__| | (_| |\ V  V / (_| | |__| |____) |   */
+/*   |_____/ \__,_| \_/\_/ \__, |\____/|_____/    */
+/*                           __/ |                */
+/*                          |___/                 */
+/*                                                */
+/*     _____  _           _                       */
+/*    |  __ \(_)         | |                      */
+/*    | |  | |_ ___ _ __ | | __ _ _   _           */
+/*    | |  | | / __| '_ \| |/ _` | | | |          */
+/*    | |__| | \__ \ |_) | | (_| | |_| |          */
+/*    |_____/|_|___/ .__/|_|\__,_|\__, |          */
+/*                 | |             __/ |          */
+/*                 |_|            |___/           */
+
+
+/*
+This code is designed to make operating a VEX robot
+far easier. It provides a simple method to select
+a specific autonomous type and color. It also
+provides a clear view of the temperatures of all
+motors and displays all motor data when selected
+for easier viewing and measurement. It also allows
+for the autonomous to be armed so it is accesible
+from the controller wihtout a competition switch.
+It makes use of LVGL, which is built into PROS.
+*/
+
 
 #include "display/lv_themes/lv_theme_templ_code.h"
 #include "display/lv_themes/lv_theme_default_code.h"
@@ -43,6 +74,7 @@ lv_obj_t * motorData = lv_ta_create(scr2, NULL);
 //     return LV_RES_OK; /*Return OK if the button is not deleted*/
 // }
 
+// Set actions for screen switching buttons and auton armer
 static lv_res_t setScr0Action(lv_obj_t * btn)
 {
     uint8_t id = lv_obj_get_free_num(btn);
@@ -299,16 +331,16 @@ void interfaceInit(void* param)
     lv_obj_t * autonScreenLabel = lv_label_create(scr1, NULL);
     lv_label_set_text(autonScreenLabel,"Auton Tools");
     lv_obj_align(autonScreenLabel, scr1, LV_ALIGN_IN_TOP_LEFT, 20, 10);
-
+    // Create home button
     lv_obj_t * homeBtn1 = lv_btn_create(scr1, scr1ChangeBtn);
     lv_btn_set_action(homeBtn1, LV_BTN_ACTION_CLICK, setScr0Action);
     lv_obj_set_pos(homeBtn1, lv_obj_get_x(scr1ChangeBtn), lv_obj_get_y(scr1ChangeBtn));
     // lv_obj_align(homeBtn1, scr1, LV_ALIGN_IN_BOTTOM_LEFT, 20, -20);
-
+    
     lv_obj_t * homeBtn1Label = lv_label_create(homeBtn1, scr1ChangeBtnLabel);
     lv_label_set_text(homeBtn1Label, "H");
     lv_obj_align(homeBtn1Label, homeBtn1, LV_ALIGN_CENTER, 0, 0);
-
+    // Create auton arming switch
     lv_obj_t * autonArmSw = lv_sw_create(scr1, NULL);
     lv_obj_align(autonArmSw, NULL, LV_ALIGN_IN_TOP_RIGHT, -10, 10);
     lv_sw_set_action(autonArmSw, autonArmAction);
@@ -316,12 +348,12 @@ void interfaceInit(void* param)
     lv_obj_t * autonArmSwLabel = lv_label_create(scr1, NULL);
     lv_label_set_text(autonArmSwLabel, "Arm Auton (A)");
     lv_obj_align(autonArmSwLabel, autonArmSw, LV_ALIGN_OUT_LEFT_MID, -10, 0);
-
+    // Create debug data field
     lv_obj_t * debugData = lv_ta_create(scr1, NULL);
     lv_obj_set_size(debugData, LV_HOR_RES/2, 145);
     lv_obj_align(debugData, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -10, -20);
     lv_ta_set_cursor_type(debugData, LV_CURSOR_HIDDEN);
-
+    // Create LED mode button map
     lv_obj_t * LEDTypeBtnm = lv_btnm_create(scr1, NULL);
     const char * LEDTypesLoc[] = {"A", "X", "L", "H", "F", "P", "S", ""};
     lv_btnm_set_map(LEDTypeBtnm, LEDTypesLoc);
@@ -338,14 +370,14 @@ void interfaceInit(void* param)
     lv_obj_t * motorScreenLabel = lv_label_create(scr2, NULL);
     lv_label_set_text(motorScreenLabel,"Motor Stats");
     lv_obj_align(motorScreenLabel, scr2, LV_ALIGN_IN_TOP_LEFT, 20, 10);
-
+    // create home button
     lv_obj_t * homeBtn2 = lv_btn_create(scr2, homeBtn1);
     // lv_obj_align(homeBtn2, scr2, LV_ALIGN_IN_BOTTOM_LEFT, 20, -20);
     lv_obj_set_pos(homeBtn1, lv_obj_get_x(scr1ChangeBtn), lv_obj_get_y(scr1ChangeBtn));
 
     lv_obj_t * homeBtn2Label = lv_label_create(homeBtn2, homeBtn1Label);
     lv_obj_align(homeBtn2Label, homeBtn2, LV_ALIGN_CENTER, 0, 0);
-
+    // create temperature meters/buttons
     lv_obj_t * motorTempMeter1Btn = lv_btn_create(scr2, NULL);
     lv_obj_t * motorTempMeter2Btn = lv_btn_create(motorTempMeter1Btn, NULL);
     lv_obj_t * motorTempMeter3Btn = lv_btn_create(motorTempMeter1Btn, NULL);
@@ -558,6 +590,7 @@ void interfaceInit(void* param)
         }
         // MOTOR SCREEN ACTIONS
         else if (lv_scr_act() == scr2){
+            // Set temperatures and data for selected motor
             
             lv_lmeter_set_value(motorTempMeter1, lift.get_temperature());
             lv_lmeter_set_value(motorTempMeter2, intakeR.get_temperature());
@@ -623,7 +656,7 @@ void interfaceInit(void* param)
                 default: readout = "Please Select Motor....";
                         break;
             }
-
+            // Reset encoder of selected motor when reset button is pressed
             if(lv_btn_get_state(encoderResetBtn) == 1){
                 switch (currentMotorRead){
                     case 1: lift.tare_position();
