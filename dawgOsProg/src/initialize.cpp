@@ -15,7 +15,7 @@ int driveBL_port = 4;
 int tray_port = 5;
 int lift_port = 6;
 int intakeR_port = 7;
-int intakeL_port = 9;
+int intakeL_port = 20;
 
 // PORT 7 DEAD ON TEST BRAIN
 pros::Motor driveFR(driveFR_port, MOTOR_GEARSET_18, true, MOTOR_ENCODER_DEGREES);

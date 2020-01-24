@@ -67,10 +67,12 @@ float trayCurveV3(float input)
 {
 	// float output = 0.083333333 * (std::sqrt(input * input - 890 * input + 222025) - input + 1045);
 	float output;
-	if(input >= 450){
+	if (input >= 450)
+	{
 		output = -1 * (0.000178571428571 * (input - 700) * (input - 700)) + 40;
 	}
-	else{
+	else
+	{
 		output = (0.000178571428571 * (input - 700) * (input - 700)) + 40;
 	}
 	// All that work just to eventually make it quadratic lol
@@ -86,20 +88,61 @@ float trayCurveV3(float input)
 	return output;
 }
 
+float trayCurveV4(float input)
+{
+	// float output = 0.083333333 * (std::sqrt(input * input - 890 * input + 222025) - input + 1045);
+	float output;
+	output = (-0.000015 * input * input) + 127;
+	// All that work just to eventually make it quadratic lol
+	debugOutput = std::to_string(output);
+	if (input < 0)
+	{
+		return 127;
+	}
+	if (output < 60)
+	{
+		return 60;
+	}
+	return output;
+}
+
 void liftTrayContol(void *param)
 {
 	int liftVal;
 	int trayVal;
-	int trayMacroPos = 316;
+	int trayMacroPos = 1000;
 	int liftMidPos = 405;
-	int liftHighPos = 620;
+	int liftHighPos = 610;
 	int liftMostlyDownPos = 120;
 	liftTrayEnabled = true;
 
 	intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
 	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
 	lift.set_brake_mode(MOTOR_BRAKE_HOLD);
-	tray.set_brake_mode(MOTOR_BRAKE_HOLD);
+	tray.set_brake_mode(MOTOR_BRAKE_COAST);
+	debugOutput = "%d", autonType;
+	if (autonType == 7)
+	{
+		tray = 127;
+		lift = 80;
+		while (lift.get_position() < 150)
+		{
+			pros::delay(20);
+		}
+		lift = -127;
+		tray = -127;
+		while (lift.get_position() > 32)
+		{
+			pros::delay(20);
+		}
+		lift = 0;
+		lift.set_zero_position(0);
+		while (tray.get_position() > 0)
+		{
+			pros::delay(20);
+		}
+		tray = 0;
+	}
 
 	while (true)
 	{
@@ -122,17 +165,17 @@ void liftTrayContol(void *param)
 			// Set tray value based on L1 and L2 with emergency button
 			if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT))
 			{
-				trayVal = 75;
+				trayVal = 90;
 				autoLED = 2;
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 			{
-				trayVal = -90;
+				trayVal = -127;
 				autoLED = 2;
 			}
-			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && tray.get_position() < 650)
+			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 			{
-				trayVal = trayCurveV3((float)tray.get_position());
+				trayVal = trayCurveV4((float)tray.get_position());
 				liftVal = -30;
 				autoLED = 3;
 			}
