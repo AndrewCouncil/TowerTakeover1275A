@@ -17,7 +17,9 @@
 
 bool driverControlEnabled = true;
 bool liftTrayEnabled = true;
-pros::ADIButton traySense('H');
+pros::ADIButton traySense('A');
+pros::ADIPotentiometer trayPot('H');
+pros::ADIPotentiometer liftPot('G');
 
 // Sensitivity curve for the drive joysticks
 float sensitivityCurve(float input)
@@ -76,7 +78,7 @@ float trayCurveV3(float input)
 		output = (0.000178571428571 * (input - 700) * (input - 700)) + 40;
 	}
 	// All that work just to eventually make it quadratic lol
-	debugOutput = std::to_string(output);
+
 	if (input < 0)
 	{
 		return 50;
@@ -94,7 +96,7 @@ float trayCurveV4(float input)
 	float output;
 	output = (-0.000015 * input * input) + 127;
 	// All that work just to eventually make it quadratic lol
-	debugOutput = std::to_string(output);
+	// debugOutput = std::to_string(output);
 	if (input < 0)
 	{
 		return 127;
@@ -106,38 +108,89 @@ float trayCurveV4(float input)
 	return output;
 }
 
-void liftTrayContol(void *param)
+float trayCurveV5(float input)
+{
+	float output;
+	float c = input - 420; //heh
+	output = -0.0000000000000000027 * std::pow(c, 6) + 127;
+
+	// debugOutput = std::to_string(output);
+	if (input < 594)
+	{
+		return 127;
+	}
+	if (output < 60)
+	{
+		return 60;
+	}
+	return output;
+}
+
+float trayCurveV6(float input)
+{
+	float output;
+	// float c = 200 * input - 261000;
+	// output = -0.7 * std::pow(c, (1 / 3)) + 88;
+
+	// // debugOutput = std::to_string(output);
+	// if (input < 400)
+	// {
+	// 	return 127;
+	// }
+	// if (output > 127)
+	// {
+	// 	return 127;
+	// }
+	// if (output < 40)
+	// {
+	// 	return 40;
+	// }
+	if (input < 1660)
+	{
+		output = 127;
+	}
+	else
+	{
+		output = 50;
+	}
+	return output;
+}
+
+void liftTrayControl(void *param)
 {
 	int liftVal;
 	int trayVal;
-	int trayMacroPos = 1000;
-	int liftMidPos = 405;
-	int liftHighPos = 610;
-	int liftMostlyDownPos = 120;
+	int trayDownPos = 490;
+	int trayMacroPos = trayDownPos + 860;
+	int liftMidPos = 2280;
+	int liftHighPos = 2700;
+	int liftMostlyDownPos = 2370;
+	int liftDownPos = 1140;
 	liftTrayEnabled = true;
 
 	intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
 	intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
 	lift.set_brake_mode(MOTOR_BRAKE_HOLD);
 	tray.set_brake_mode(MOTOR_BRAKE_COAST);
-	debugOutput = "%d", autonType;
+	// debugOutput = "%d", autonType;
+
 	if (autonType == 7)
 	{
 		tray = 127;
 		lift = 80;
-		while (lift.get_position() < 150)
+		while (liftPot.get_value() < (liftDownPos + 200))
 		{
 			pros::delay(20);
 		}
 		lift = -127;
 		tray = -127;
-		while (lift.get_position() > 32)
+		while (liftPot.get_value() > (liftDownPos + 50))
 		{
 			pros::delay(20);
 		}
 		lift = 0;
 		lift.set_zero_position(0);
-		while (tray.get_position() > 0)
+		while (trayPot.get_value() > (trayDownPos + 30))
 		{
 			pros::delay(20);
 		}
@@ -146,6 +199,7 @@ void liftTrayContol(void *param)
 
 	while (true)
 	{
+		debugOutput = "Lift Val: " + std::to_string(liftPot.get_value()) + "\nTray Val: " + std::to_string(trayPot.get_value());
 		if (driverControlEnabled)
 		{
 			// Set lift value based on X and Y
@@ -172,145 +226,162 @@ void liftTrayContol(void *param)
 			{
 				trayVal = -127;
 				autoLED = 2;
+				intakeL.set_brake_mode(MOTOR_BRAKE_COAST);
+				intakeR.set_brake_mode(MOTOR_BRAKE_COAST);
 			}
 			else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 			{
-				trayVal = trayCurveV4((float)tray.get_position());
-				liftVal = -30;
+				trayVal = trayCurveV6((float)trayPot.get_value());
+				liftVal = 0;
 				autoLED = 3;
+				intakeL.set_brake_mode(MOTOR_BRAKE_COAST);
+				intakeR.set_brake_mode(MOTOR_BRAKE_COAST);
 			}
 			else
 			{
 				trayVal = 0;
 				autoLED = 2;
+				intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
+				intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
 			}
 			while (liftTrayEnabled)
 			{
-				if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && lift.get_position() < liftHighPos)
+				if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && liftPot.get_value() < liftHighPos)
 				{
+					intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
+					intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
 					// Lift HIGH Macro
 					autoLED = 3;
-					if (tray.get_position() < trayMacroPos)
+					if (trayPot.get_value() < trayMacroPos)
 					{
 						tray = 127;
 						lift = 100;
-						while (tray.get_position() < trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+						while (trayPot.get_value() < trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 						{
 							pros::delay(20);
 						}
 						tray = 0;
 					}
-					else if (tray.get_position() > trayMacroPos)
+					else if (trayPot.get_value() > trayMacroPos)
 					{
 						tray = -127;
-						while (tray.get_position() > trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+						while (trayPot.get_value() > trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 						{
 							pros::delay(20);
 						}
 						tray = 0;
 						lift = 100;
 					}
-					while (lift.get_position() < liftHighPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+					while (liftPot.get_value() < liftHighPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 					{
 						pros::delay(20);
 					}
 					lift = 0;
 					autoLED = 2;
 				}
-				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y) && lift.get_position() < liftMidPos)
+				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y) && liftPot.get_value() < liftMidPos)
 				{
+					intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
+					intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
 					// Lift MID Macro for when lift is BELOW POSITION
 					autoLED = 3;
-					if (tray.get_position() < trayMacroPos)
+					if (trayPot.get_value() < trayMacroPos)
 					{
 						tray = 127;
 						lift = 100;
-						while (tray.get_position() < trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+						while (trayPot.get_value() < trayMacroPos && liftPot.get_value() < liftMidPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 						{
 							pros::delay(20);
 						}
-						tray = 0;
-					}
-					else if (tray.get_position() > trayMacroPos)
-					{
-						tray = -127;
-						while (tray.get_position() > trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+						lift = 0;
+						while (trayPot.get_value() < (trayMacroPos - 100) && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 						{
 							pros::delay(20);
 						}
 						tray = 0;
 						lift = 100;
 					}
-					while (lift.get_position() < liftMidPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+					else if (trayPot.get_value() > trayMacroPos)
+					{
+						tray = -127;
+						while (trayPot.get_value() > trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+						{
+							pros::delay(20);
+						}
+						tray = 0;
+						lift = 100;
+					}
+					while (liftPot.get_value() < liftMidPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 					{
 						pros::delay(20);
 					}
 					lift = 0;
 					autoLED = 2;
 				}
-				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y) && lift.get_position() > liftMidPos)
+				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y) && liftPot.get_value() > liftMidPos)
 				{
+					intakeL.set_brake_mode(MOTOR_BRAKE_HOLD);
+					intakeR.set_brake_mode(MOTOR_BRAKE_HOLD);
 					// Lift MID Macro for when lift is ABOVE POSITION
 					autoLED = 3;
-					if (tray.get_position() < trayMacroPos)
+					if (trayPot.get_value() < trayMacroPos)
 					{
 						tray = 127;
-						while (tray.get_position() < trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+						while (trayPot.get_value() < trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 						{
 							pros::delay(20);
 						}
 						tray = 0;
 						lift = -100;
 					}
-					else if (tray.get_position() > trayMacroPos)
+					else if (trayPot.get_value() > trayMacroPos)
 					{
 						tray = -127;
-						while (tray.get_position() > trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+						while (trayPot.get_value() > trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 						{
 							pros::delay(20);
 						}
 						tray = 0;
 						lift = -100;
 					}
-					while (lift.get_position() > liftMidPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+					while (liftPot.get_value() > liftMidPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 					{
 						pros::delay(20);
 					}
 					lift = 0;
 					autoLED = 2;
 				}
-				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && lift.get_position() > 0)
+				else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && liftPot.get_value() > 0)
 				{
+					intakeL.set_brake_mode(MOTOR_BRAKE_COAST);
+					intakeR.set_brake_mode(MOTOR_BRAKE_COAST);
 					// Lift DOWN Macro
-					if (tray.get_position() > trayMacroPos + 30)
-					{
-						tray = -127;
-					}
-					else if (tray.get_position() < trayMacroPos - 30)
+					if (trayPot.get_value() < trayMacroPos && liftPot.get_value() > (liftHighPos - 170))
 					{
 						tray = 127;
+						while (trayPot.get_value() < trayMacroPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+						{
+							pros::delay(20);
+						}
 					}
-					while ((tray.get_position() < trayMacroPos - 30 || tray.get_position() > trayMacroPos + 30) && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
-					{
-						pros::delay(20);
-					}
+
 					tray = 0;
 					autoLED = 3;
-					lift = -100;
-					while (lift.get_position() > liftMostlyDownPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+					lift = -127;
+					while (liftPot.get_value() > liftMostlyDownPos && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 					{
 						pros::delay(20);
 					}
 					lift.set_brake_mode(MOTOR_BRAKE_COAST);
-					lift = -40;
+					lift = -90;
 					tray = -127;
-					while (tray.get_position() > 15 && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+					while (trayPot.get_value() > (trayDownPos + 30) && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 					{
 						pros::delay(20);
 					}
 					tray = 0;
 					tray.set_zero_position(0);
-					while (lift.get_position() > 15 && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+					while (liftPot.get_value() > (liftDownPos + 50) && !master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 					{
 						pros::delay(20);
 					}
@@ -320,6 +391,7 @@ void liftTrayContol(void *param)
 				}
 				else
 				{
+					// If not macro set to manual control values
 					tray = trayVal;
 					lift = liftVal;
 				}
@@ -335,10 +407,8 @@ void liftTrayContol(void *param)
 		pros::delay(20);
 	}
 }
-
-void opcontrol()
+void driveIntakeControl(void *param)
 {
-
 	autoLED = 2;
 	// pros::Controller master(pros::E_CONTROLLER_MASTER);
 	// master.print(1,0,"->%d", pros::battery::get_capacity());
@@ -351,9 +421,7 @@ void opcontrol()
 	int upPressed;
 	int xPressed;
 	int aPressed;
-	int backupVal = -23;
-
-	pros::Task liftTrayContol_task(liftTrayContol, 0, TASK_PRIORITY_DEFAULT);
+	int backupVal = -58;
 
 	while (true)
 	{
@@ -424,4 +492,11 @@ void opcontrol()
 		}
 		pros::delay(20);
 	}
+}
+
+void opcontrol()
+{
+	pros::Task liftTrayConrtol_task(liftTrayControl, 0, TASK_PRIORITY_DEFAULT);
+
+	pros::Task driveIntakeControl_task(driveIntakeControl, 0, TASK_PRIORITY_DEFAULT);
 }

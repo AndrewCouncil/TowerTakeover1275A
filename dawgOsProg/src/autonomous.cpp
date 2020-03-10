@@ -94,12 +94,12 @@ void liftUp(bool high)
     }
     else
     {
-        liftTarget = 415;
+        liftTarget = 500;
     }
 
     trayControl.setMaxVelocity(150);
     liftControl.setMaxVelocity(200);
-    trayControl.setTarget(910);
+    trayControl.setTarget(970);
     liftControl.setTarget(liftTarget);
     while (!liftControl.isSettled())
     {
@@ -120,7 +120,7 @@ void liftDown(bool wait)
     }
 }
 
-void dropStack()
+void dropStack(bool longer)
 {
     intakeOut();
     pros::delay(150);
@@ -134,13 +134,21 @@ void dropStack()
     {
         pros::delay(20);
     }
-    pros::delay(500);
-    driveControl.setMaxVelocity(30);
+    
     liftControl.stop();
-    driveControl.moveDistance(-2.3_ft);
-    driveControl.setMaxVelocity(60);
+    driveControl.setMaxVelocity(65);
+    if (longer)
+    {
+        driveControl.moveDistance(-2.2_ft);
+    }
+    else
+    {
+        driveControl.moveDistance(-1.4_ft);
+    }
     intakeIn();
+    trayControl.setMaxVelocity(300);
     trayControl.setTarget(0);
+    trayControl.waitUntilSettled();
     // driveControl.setMaxVelocity(85);
     return;
 }
@@ -166,22 +174,25 @@ void foldOut(bool wait)
     liftControl.setTarget(150);
     intakeOut();
     // driveControl.waitUntilSettled();
-    while(!liftControl.isSettled()){
+    while (!liftControl.isSettled())
+    {
         intakeOut();
         pros::delay(20);
     }
     trayControl.setTarget(0);
     liftControl.setTarget(30);
-    while(!liftControl.isSettled() && wait){
+    while (!liftControl.isSettled() && wait)
+    {
         pros::delay(20);
     }
-    if(wait){
+    if (wait)
+    {
         lift.set_zero_position(0);
     }
     return;
 }
 
-void fiveStack()
+void fiveUnprotected()
 {
     driveControl.setMaxVelocity(65);
     trayControl.setMaxVelocity(40);
@@ -201,7 +212,7 @@ void fiveStack()
     driveControl.stop();
     // Drive to goal and place
     driveControl.moveDistance(1.37_ft);
-    dropStack();
+    dropStack(false);
     return;
 }
 
@@ -227,7 +238,7 @@ void oldFiveStack()
     driveControl.stop();
     // Drive to goal and place
     driveControl.moveDistance(1.37_ft);
-    dropStack();
+    dropStack(false);
     return;
 }
 
@@ -314,41 +325,30 @@ void sixBent()
     return;
 }
 
-void sixProtected(){
+void fiveProtected()
+{
     driveControl.setMaxVelocity(65);
     trayControl.setMaxVelocity(40);
     liftControl.setMaxVelocity(200);
-    foldOut(false);
-    pros::delay(500);
-    lift.set_zero_position(0);
 
-    liftUp(true);
-    driveControl.moveDistance(2.4_ft);
-    driveControl.turnAngle(27_deg * autonColor);
-    driveControl.setMaxVelocity(45);
-    driveControl.moveDistance(0.6_ft);
+    // foldOut(true);
+    // Pick up 4 cubes
     intakeIn();
-    liftDown(true);
-    driveControl.moveDistance(0.5_ft);
-    driveControl.setMaxVelocity(65);
-    driveControl.turnAngle(153_deg * autonColor);
-    driveControl.moveDistance(2_ft);
-    driveControl.turnAngle(65_deg * autonColor);
-    
+    driveControl.moveDistance(2.75_ft);
+    liftControl.stop();
+    lift.set_zero_position(0);
+    pros::delay(400);
+    driveControl.moveDistance(0.7_ft);
+    // Back up and turn toward corner
+    // driveControl.moveDistance(-0.97_ft);
+
+    driveControl.turnAngle(135_deg * autonColor);
+    driveControl.waitUntilSettled();
+    driveControl.stop();
     // Drive to goal and place
+    driveControl.moveDistance(3_ft);
     intakeStop();
-    driveControl.moveDistanceAsync(2_ft);
-    pros::delay(1300);
-    dropStackAsync();
-    
-    while (!trayControl.isSettled())
-    {
-        pros::delay(20);
-    }
-    driveControl.setMaxVelocity(30);
-    driveControl.moveDistance(-0.4_ft);
-    driveControl.setMaxVelocity(50);
-    intakeStop();
+    dropStack(false);
     return;
 }
 
@@ -562,7 +562,7 @@ void oldSkills()
     // Place down stack
     driveControl.turnAngle(45_deg);
     driveControl.moveDistance(1.55_ft);
-    dropStack();
+    dropStack(false);
     // Line up with tower
     driveControl.moveDistance(-1.7_ft);
     driveControl.turnAngle(135_deg);
@@ -619,7 +619,7 @@ void absurdSkills()
     // Drive to goal and place
     driveControl.moveDistance(1.15_ft);
     intakeStop();
-    dropStack();
+    dropStack(false);
 
     // Back up and lign up to tower
     driveControl.setMaxVelocity(50);
@@ -663,59 +663,86 @@ void absurdSkills()
     driveControl.turnAngle(-23_deg);
 }
 
-void madSkillz()
+void shortStackSkillz()
 {
-    driveControl.setMaxVelocity(60);
+    // Six cube stack that goes straight for purple
+    driveControl.setMaxVelocity(65);
 
     trayControl.setMaxVelocity(40);
     liftControl.setMaxVelocity(200);
 
-    // foldOut(false);
-    // Pick up 4 cubes
+    // foldOut(true);
+
+    // Pick up 5 cubes
+    trayControl.setTarget(0);
     intakeIn();
-    driveControl.moveDistance(3.6_ft);
-    liftControl.stop();
-    lift.set_zero_position(0);
+    driveControl.moveDistance(4.6_ft);
+    pros::delay(500);
 
-    driveControl.turnAngle(-31.6_deg);
+    // Back up and turn toward corner
     driveControl.moveDistance(-3.3_ft);
-    driveControl.turnAngle(31_deg);
-    driveControl.moveDistance(4.2_ft);
-    driveControl.moveDistance(-2.8_ft);
-
-    driveControl.turnAngle(135_deg);
+    intakeStop();
+    driveControl.turnAngle(140_deg);
     driveControl.waitUntilSettled();
     driveControl.stop();
 
     // Drive to goal and place
-    driveControl.moveDistance(1.37_ft);
-    intakeStop();
-    dropStack();
-
-    driveControl.turnAngle(-135_deg);
-    return;
-    driveControl.moveDistance(-1.5_ft);
-    driveControl.setMaxVelocity(20);
-    driveControl.moveDistance(-0.25_ft);
-    driveControl.setMaxVelocity(60);
-    driveControl.moveDistance(4_ft);
+    driveControl.moveDistance(1.35_ft);
+    dropStack(true);
+    driveControl.turnAngle(-172_deg);
+    driveControl.moveDistance(2_ft);
     driveControl.moveDistance(-0.4_ft);
-    liftUp(true);
+    return;
+    liftUp(false);
     intakeSpit();
-    driveControl.turnAngle(75_deg);
-    liftDown(true);
+    liftDown(false);
+    driveControl.moveDistance(-2.5_ft);
+    intakeIn();
+    driveControl.turnAngle(-75_deg);
+    driveControl.moveDistance(0.5_ft);
+    driveControl.moveDistance(-0.5_ft);
+    driveControl.turnAngle(-15_deg);
+    liftControl.setTarget(150);
+    intakeStop();
+    driveControl.moveDistance(-2_ft);
+    driveControl.moveDistance(0.6_ft);
+    liftUp(false);
+    driveControl.turnAngle(-180_deg);
+    intakeSpit();
+    liftDown(false);
+    driveControl.turnAngle(-180_deg);
     intakeIn();
     driveControl.moveDistance(3_ft);
-    pros::delay(200);
-    driveControl.moveDistance(-0.5_ft);
-    driveControl.turnAngle(-75_deg);
-    driveControl.moveDistance(-2.5_ft);
-    liftUp(true);
     driveControl.turnAngle(90_deg);
+    driveControl.moveDistance(6_ft);
+    driveControl.turnAngle(45_deg);
+
+    // Drive to goal and place
+    driveControl.moveDistance(4.5_ft);
+    dropStack(false);
+    driveControl.turnAngle(135_deg);
+    while (!trayControl.isSettled())
+    {
+        pros::delay(20);
+    }
+    driveControl.moveDistance(1_ft);
+    driveControl.turnAngle(90_deg);
+    liftControl.setTarget(150);
+    intakeStop();
+    driveControl.moveDistance(-1.5_ft);
+    driveControl.moveDistance(0.6_ft);
+    liftUp(false);
+    driveControl.turnAngle(180_deg);
     intakeSpit();
-
-
-    return;    
+    driveControl.turnAngle(155_deg);
+    liftDown(false);
+    intakeIn();
+    driveControl.moveDistanceAsync(8_ft);
+    pros::delay(2300);
+    liftUp(false);
+    driveControl.waitUntilSettled();
+    intakeSpit();
+    return;
 }
 
 void oneTower()
@@ -757,7 +784,7 @@ void oneTower()
 void oneCube()
 {
     // ONE CUBE SPIT
-    
+
     foldOut(false);
 }
 
@@ -795,16 +822,16 @@ void autonomous()
     pros::delay(30);
     if (autonType == 0)
     {
-        fiveStack();
+        fiveUnprotected();
         // oneCube();
     }
     else if (autonType == 1)
     {
-        sixStraight();
+        fiveProtected();
     }
     else if (autonType == 2)
     {
-        sixProtected();
+        sixStraight();
     }
     else if (autonType == 3)
     {
@@ -820,11 +847,11 @@ void autonomous()
     }
     else if (autonType == 6)
     {
-        dropStack();
+        dropStack(false);
     }
     else if (autonType == 7)
     {
-        madSkillz();
+        shortStackSkillz();
     }
 
     return;

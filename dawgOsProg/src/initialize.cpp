@@ -12,7 +12,7 @@ int driveFR_port = 1;
 int driveFL_port = 2;
 int driveBR_port = 3;
 int driveBL_port = 4;
-int tray_port = 5;
+int driveM_port = 5;
 int lift_port = 6;
 int intakeR_port = 7;
 int intakeL_port = 20;
@@ -22,7 +22,7 @@ pros::Motor driveFR(driveFR_port, MOTOR_GEARSET_18, true, MOTOR_ENCODER_DEGREES)
 pros::Motor driveFL(driveFL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
 pros::Motor driveBR(driveBR_port, MOTOR_GEARSET_18, true, MOTOR_ENCODER_DEGREES);
 pros::Motor driveBL(driveBL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);
-pros::Motor tray(tray_port, MOTOR_GEARSET_36, false, MOTOR_ENCODER_DEGREES);
+pros::Motor driveM(driveM_port, MOTOR_GEARSET_36, false, MOTOR_ENCODER_DEGREES);
 pros::Motor lift(lift_port, MOTOR_GEARSET_36, false, MOTOR_ENCODER_DEGREES);
 pros::Motor intakeR(intakeR_port, MOTOR_GEARSET_18, true, MOTOR_ENCODER_DEGREES);
 pros::Motor intakeL(intakeL_port, MOTOR_GEARSET_18, false, MOTOR_ENCODER_DEGREES);

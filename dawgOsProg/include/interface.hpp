@@ -281,7 +281,7 @@ void interfaceInit(void* param)
     // for(unsigned int i = 0; i < SIZE; i++){
     //     autonTypesLoc[i] = autonTypes[i];
     // }
-    const char * autonTypesLoc[] = {"5", "6S", "6B", "8?", "T", "1", "90", "S", ""};
+    const char * autonTypesLoc[] = {"5U", "5P", "6S", "8?", "T", "1", "90", "S", ""};
     lv_btnm_set_map(autonTypeBtnm, autonTypesLoc);
     lv_btnm_set_toggle(autonTypeBtnm, true, 0);
     // lv_obj_align(autonTypeBtnm, autonRedBtn, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
@@ -354,14 +354,14 @@ void interfaceInit(void* param)
     lv_obj_align(debugData, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -10, -20);
     lv_ta_set_cursor_type(debugData, LV_CURSOR_HIDDEN);
     // Create LED mode button map
-    lv_obj_t * LEDTypeBtnm = lv_btnm_create(scr1, NULL);
-    const char * LEDTypesLoc[] = {"A", "X", "L", "H", "F", "P", "S", ""};
-    lv_btnm_set_map(LEDTypeBtnm, LEDTypesLoc);
-    lv_btnm_set_toggle(LEDTypeBtnm, true, 0);
-    // lv_obj_align(autonTypeBtnm, autonRedBtn, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
-    lv_obj_align(LEDTypeBtnm, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -30, -50);
-    lv_obj_set_size(LEDTypeBtnm, btnmWidth, 50);
-    lv_btnm_set_style(LEDTypeBtnm, LV_BTNM_STYLE_BTN_TGL_REL, &style_btnm_tgl_rel);
+    // lv_obj_t * LEDTypeBtnm = lv_btnm_create(scr1, NULL);
+    // const char * LEDTypesLoc[] = {"A", "X", "L", "H", "F", "P", "S", ""};
+    // lv_btnm_set_map(LEDTypeBtnm, LEDTypesLoc);
+    // lv_btnm_set_toggle(LEDTypeBtnm, true, 0);
+    // // lv_obj_align(autonTypeBtnm, autonRedBtn, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+    // lv_obj_align(LEDTypeBtnm, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -30, -50);
+    // lv_obj_set_size(LEDTypeBtnm, btnmWidth, 50);
+    // lv_btnm_set_style(LEDTypeBtnm, LV_BTNM_STYLE_BTN_TGL_REL, &style_btnm_tgl_rel);
 
 
     // SCREEN 2 OBJECTS
@@ -586,7 +586,7 @@ void interfaceInit(void* param)
         else if (lv_scr_act() == scr1){
             lv_ta_set_text(debugData, debugOutput.c_str());
             lv_ta_set_cursor_pos(debugData, 0);
-            selectedLED = lv_btnm_get_toggled(LEDTypeBtnm);
+            // selectedLED = lv_btnm_get_toggled(LEDTypeBtnm);
         }
         // MOTOR SCREEN ACTIONS
         else if (lv_scr_act() == scr2){
